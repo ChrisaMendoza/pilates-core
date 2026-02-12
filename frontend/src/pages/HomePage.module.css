@@ -1,0 +1,212 @@
+.homePage {
+    flex: 1;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, var(--color-primary-beige) 0%, var(--color-secondary-gray) 100%);
+    padding: var(--spacing-3xl) var(--spacing-xl);
+    text-align: center;
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.heroTitle {
+    font-size: var(--text-5xl);
+    font-family: var(--font-serif);
+    font-weight: 500;
+    color: var(--color-dark);
+    margin-bottom: var(--spacing-md);
+}
+
+.heroSubtitle {
+    font-size: var(--text-xl);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xl);
+    max-width: 600px;
+}
+
+.heroCta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-xl);
+    background-color: var(--color-accent-gold);
+    color: var(--color-white);
+    font-size: var(--text-base);
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all var(--transition-base);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.heroCta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
+}
+
+.ctaArrow {
+    font-size: var(--text-lg);
+}
+
+/* Content Sections */
+.section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-3xl) var(--spacing-xl);
+}
+
+.sectionTitle {
+    font-size: var(--text-4xl);
+    font-family: var(--font-serif);
+    font-weight: 500;
+    color: var(--color-dark);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+}
+
+.sectionSubtitle {
+    font-size: var(--text-lg);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sectionContent {
+    font-size: var(--text-base);
+    line-height: 1.8;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Image Grid */
+.imageGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+    margin: var(--spacing-xl) 0;
+}
+
+.studioImage {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Coach Section */
+.coachSection {
+    background-color: var(--color-primary-beige);
+}
+
+.formationGrid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-xl);
+    align-items: start;
+}
+
+.formationLabel {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--color-dark);
+}
+
+.formationText {
+    font-size: var(--text-base);
+    line-height: 1.8;
+    color: var(--color-text-primary);
+}
+
+/* Formats Section */
+.formatsList {
+    margin-top: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.formatItem {
+    background-color: var(--color-white);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.formatTitle {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    color: var(--color-dark);
+    margin-bottom: var(--spacing-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.formatDescription {
+    font-size: var(--text-base);
+    line-height: 1.8;
+    color: var(--color-text-primary);
+}
+
+/* Experience Section */
+.experienceSection {
+    background: linear-gradient(135deg, var(--color-secondary-gray) 0%, var(--color-primary-beige) 100%);
+}
+
+.experienceContent {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.highlight {
+    color: var(--color-accent-gold);
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero {
+        padding: var(--spacing-2xl) var(--spacing-md);
+        min-height: 50vh;
+    }
+
+    .heroTitle {
+        font-size: var(--text-4xl);
+    }
+
+    .heroSubtitle {
+        font-size: var(--text-lg);
+    }
+
+    .section {
+        padding: var(--spacing-2xl) var(--spacing-md);
+    }
+
+    .sectionTitle {
+        font-size: var(--text-3xl);
+    }
+
+    .imageGrid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .studioImage {
+        height: 300px;
+    }
+
+    .formationGrid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+}

@@ -1,0 +1,208 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xl);
+    padding-bottom: var(--spacing-3xl);
+}
+
+.hero {
+    background: linear-gradient(135deg, var(--color-primary-beige), var(--color-secondary-gray));
+    text-align: center;
+    padding: var(--spacing-3xl) var(--spacing-xl);
+}
+
+.heroKicker {
+    font-size: var(--text-sm);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.heroTitle {
+    max-width: 900px;
+    margin: 0 auto var(--spacing-md);
+}
+
+.heroSubtitle {
+    max-width: 760px;
+    margin: 0 auto;
+    color: var(--color-text-secondary);
+    font-size: var(--text-lg);
+}
+
+.backHomeButton {
+    margin-top: var(--spacing-lg);
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-dark);
+    border: 1px solid var(--color-dark);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-weight: 500;
+}
+
+.backHomeButton:hover {
+    background-color: var(--color-dark);
+    color: var(--color-white);
+}
+
+.plansSection,
+.faqSection {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 var(--spacing-xl);
+}
+
+.sectionHeading {
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+}
+
+.sectionHeading h2 {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--spacing-xs);
+}
+
+.sectionHeading p {
+    color: var(--color-text-secondary);
+}
+
+.plansGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.card {
+    border: 1px solid var(--color-secondary-gray);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    background-color: var(--color-white);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.popular {
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.15);
+}
+
+.badge {
+    align-self: flex-start;
+    background-color: var(--color-accent-gold);
+    color: var(--color-white);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: var(--radius-full);
+    padding: 0.3rem 0.75rem;
+}
+
+.cardTitle {
+    font-size: var(--text-2xl);
+}
+
+.price {
+    font-size: var(--text-3xl);
+    font-family: var(--font-serif);
+    line-height: 1;
+}
+
+.price span {
+    margin-left: var(--spacing-xs);
+    font-size: var(--text-base);
+    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+}
+
+.description {
+    color: var(--color-text-secondary);
+}
+
+.features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.features li {
+    position: relative;
+    padding-left: 1.3rem;
+}
+
+.features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent-gold);
+    font-weight: 600;
+}
+
+.ctaButton {
+    margin-top: auto;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-dark);
+    background-color: var(--color-dark);
+    color: var(--color-white);
+    font-weight: 600;
+    padding: var(--spacing-sm);
+    text-align: center;
+    display: inline-block;
+}
+
+.ctaButton:hover {
+    background-color: var(--color-black);
+}
+
+.faqSection h3 {
+    font-size: var(--text-3xl);
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.faqList {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    gap: var(--spacing-sm);
+}
+
+.faqItem {
+    border: 1px solid var(--color-secondary-gray);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    background: var(--color-white);
+}
+
+.faqItem summary {
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.faqItem p {
+    margin-top: var(--spacing-sm);
+    color: var(--color-text-secondary);
+}
+
+@media (max-width: 768px) {
+    .hero {
+        padding: var(--spacing-2xl) var(--spacing-md);
+    }
+
+    .heroTitle {
+        font-size: var(--text-4xl);
+    }
+
+    .heroSubtitle {
+        font-size: var(--text-base);
+    }
+
+    .plansSection,
+    .faqSection {
+        padding: 0 var(--spacing-md);
+    }
+}

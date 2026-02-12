@@ -1,0 +1,77 @@
+# Consolidated .gitignore for pilates-core
+
+# General / OS
+.DS_Store
+.Spotlight-V100
+.Trashes
+._*
+Thumbs.db
+Desktop.ini
+*.sw?
+*~
+*.bak
+*.tmp
+*.log*
+
+# IDEs
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.iml
+*.iws
+*.ipr
+*.ids
+*.code-workspace
+.project
+.metadata
+.classpath
+.settings/
+.loadpath
+.factorypath
+.externalToolBuilders/**
+*.launch
+.cproject
+.buildpath
+.sts4-cache/*
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+target/
+build/
+out/
+classes/
+*.jar
+*.war
+*.ear
+/backend/node/
+/backend/node_tmp/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Database / Local files
+*.db
+*.local
+.env
+.env.*
+
+# Others
+.sass-cache/
+.eslintcache
+coverage/
+.nyc_output/
+.merge_file*
+!gradle/wrapper/gradle-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar

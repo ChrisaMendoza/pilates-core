@@ -1,0 +1,116 @@
+.registerContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: calc(100vh - 80px);
+    padding-top: 50px;
+    padding-bottom: 80px;
+    font-family: 'Outfit', 'Inter', sans-serif;
+}
+
+.backLink {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 40px;
+    margin-bottom: 80px;
+    color: #000;
+    font-size: 1.1rem;
+    text-decoration: none;
+}
+
+.title {
+    margin-bottom: 40px;
+    color: #000;
+    font-size: 4rem;
+    font-weight: 500;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label {
+    color: #000;
+    font-size: 1.1rem;
+}
+
+.input {
+    width: 100%;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 12px;
+    outline: none;
+    background-color: #d9d9d9;
+    font-size: 1rem;
+}
+
+.buttonGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.submitButton,
+.loginButton {
+    width: fit-content;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 30px;
+    color: #000;
+    font-size: 1.1rem;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submitButton {
+    background-color: #b29b9b;
+}
+
+.submitButton:hover {
+    background-color: #a38989;
+}
+
+.loginButton {
+    background-color: #f8d7da;
+}
+
+.loginButton:hover {
+    background-color: #f1c1c5;
+}
+
+.error {
+    margin-top: 10px;
+    color: crimson;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .registerContainer {
+        padding: 20px;
+    }
+
+    .backLink {
+        margin-left: 0;
+        margin-bottom: 40px;
+    }
+
+    .title {
+        font-size: 3rem;
+    }
+}
