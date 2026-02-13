@@ -16,7 +16,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import tech.jhipster.config.JHipsterConstants;
-import tech.jhipster.config.liquibase.AsyncSpringLiquibase;
 
 @Configuration
 public class LiquibaseConfiguration {
@@ -31,11 +30,10 @@ public class LiquibaseConfiguration {
 
     @Bean
     public SpringLiquibase liquibase(
-        @Qualifier("taskExecutor") Executor executor,
-        LiquibaseProperties liquibaseProperties,
-        R2dbcProperties dataSourceProperties
-    ) {
-        SpringLiquibase liquibase = new AsyncSpringLiquibase(executor, env);
+            @Qualifier("taskExecutor") Executor executor,
+            LiquibaseProperties liquibaseProperties,
+            R2dbcProperties dataSourceProperties) {
+        SpringLiquibase liquibase = new SpringLiquibase();
         liquibase.setDataSource(createLiquibaseDataSource(liquibaseProperties, dataSourceProperties));
         liquibase.setChangeLog("classpath:config/liquibase/master.xml");
         if (!CollectionUtils.isEmpty(liquibaseProperties.getContexts())) {
@@ -48,7 +46,8 @@ public class LiquibaseConfiguration {
         liquibase.setDatabaseChangeLogTable(liquibaseProperties.getDatabaseChangeLogTable());
         liquibase.setDropFirst(liquibaseProperties.isDropFirst());
         if (!CollectionUtils.isEmpty(liquibaseProperties.getLabelFilter())) {
-            liquibase.setLabelFilter(StringUtils.collectionToCommaDelimitedString(liquibaseProperties.getLabelFilter()));
+            liquibase
+                    .setLabelFilter(StringUtils.collectionToCommaDelimitedString(liquibaseProperties.getLabelFilter()));
         }
         liquibase.setChangeLogParameters(liquibaseProperties.getParameters());
         liquibase.setRollbackFile(liquibaseProperties.getRollbackFile());
@@ -62,9 +61,11 @@ public class LiquibaseConfiguration {
         return liquibase;
     }
 
-    private static DataSource createLiquibaseDataSource(LiquibaseProperties liquibaseProperties, R2dbcProperties dataSourceProperties) {
+    private static DataSource createLiquibaseDataSource(LiquibaseProperties liquibaseProperties,
+            R2dbcProperties dataSourceProperties) {
         String user = Optional.ofNullable(liquibaseProperties.getUser()).orElse(dataSourceProperties.getUsername());
-        String password = Optional.ofNullable(liquibaseProperties.getPassword()).orElse(dataSourceProperties.getPassword());
+        String password = Optional.ofNullable(liquibaseProperties.getPassword())
+                .orElse(dataSourceProperties.getPassword());
 
         return DataSourceBuilder.create().url(liquibaseProperties.getUrl()).username(user).password(password).build();
     }

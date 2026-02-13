@@ -44,8 +44,10 @@ import tech.jhipster.web.rest.errors.ProblemDetailWithCause.ProblemDetailWithCau
 import tech.jhipster.web.util.HeaderUtil;
 
 /**
- * Controller advice to translate the server side exceptions to client-friendly json structures.
- * The error response follows RFC7807 - Problem Details for HTTP APIs (https://tools.ietf.org/html/rfc7807).
+ * Controller advice to translate the server side exceptions to client-friendly
+ * json structures.
+ * The error response follows RFC7807 - Problem Details for HTTP APIs
+ * (https://tools.ietf.org/html/rfc7807).
  */
 @ControllerAdvice
 @Component("jhiExceptionTranslator")
@@ -72,25 +74,25 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler implemen
     public Mono<ResponseEntity<Object>> handleAnyException(Throwable ex, ServerWebExchange request) {
         LOG.debug("Converting Exception to Problem Details:", ex);
         ProblemDetailWithCause pdCause = wrapAndCustomizeProblem(ex, request);
-        return handleExceptionInternal((Exception) ex, pdCause, buildHeaders(ex), HttpStatusCode.valueOf(pdCause.getStatus()), request);
+        return handleExceptionInternal((Exception) ex, pdCause, buildHeaders(ex),
+                HttpStatusCode.valueOf(pdCause.getStatus()), request);
     }
 
     @Nullable
     @Override
     protected Mono<ResponseEntity<Object>> handleExceptionInternal(
-        Exception ex,
-        @Nullable Object body,
-        HttpHeaders headers,
-        HttpStatusCode statusCode,
-        ServerWebExchange request
-    ) {
+            Exception ex,
+            @Nullable Object body,
+            HttpHeaders headers,
+            HttpStatusCode statusCode,
+            ServerWebExchange request) {
         body = body == null ? wrapAndCustomizeProblem((Throwable) ex, (ServerWebExchange) request) : body;
         if (request.getResponse().isCommitted()) {
             return Mono.error(ex);
         }
         return Mono.just(
-            new ResponseEntity<>(body, updateContentType(headers), HttpStatusCode.valueOf(((ProblemDetailWithCause) body).getStatus()))
-        );
+                new ResponseEntity<>(body, updateContentType(headers),
+                        HttpStatusCode.valueOf(((ProblemDetailWithCause) body).getStatus())));
     }
 
     protected ProblemDetailWithCause wrapAndCustomizeProblem(Throwable ex, ServerWebExchange request) {
@@ -98,34 +100,37 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler implemen
     }
 
     private ProblemDetailWithCause getProblemDetailWithCause(Throwable ex) {
-        if (
-            ex instanceof com.pilates.booking.service.UsernameAlreadyUsedException
-        ) return (ProblemDetailWithCause) new LoginAlreadyUsedException().getBody();
-        if (
-            ex instanceof com.pilates.booking.service.EmailAlreadyUsedException
-        ) return (ProblemDetailWithCause) new EmailAlreadyUsedException().getBody();
-        if (
-            ex instanceof com.pilates.booking.service.InvalidPasswordException
-        ) return (ProblemDetailWithCause) new InvalidPasswordException().getBody();
+        if (ex instanceof com.pilates.booking.service.UsernameAlreadyUsedException)
+            return (ProblemDetailWithCause) new LoginAlreadyUsedException().getBody();
+        if (ex instanceof com.pilates.booking.service.EmailAlreadyUsedException)
+            return (ProblemDetailWithCause) new EmailAlreadyUsedException().getBody();
+        if (ex instanceof com.pilates.booking.service.PhoneAlreadyUsedException)
+            return (ProblemDetailWithCause) new PhoneAlreadyUsedException().getBody();
+        if (ex instanceof com.pilates.booking.service.InvalidPasswordException)
+            return (ProblemDetailWithCause) new InvalidPasswordException().getBody();
 
         if (ex instanceof AuthenticationException) {
-            // Ensure no information about existing users is revealed via failed authentication attempts
+            // Ensure no information about existing users is revealed via failed
+            // authentication attempts
             return ProblemDetailWithCauseBuilder.instance()
-                .withStatus(toStatus(ex).value())
-                .withTitle("Unauthorized")
-                .withDetail("Invalid credentials")
-                .build();
+                    .withStatus(toStatus(ex).value())
+                    .withTitle("Unauthorized")
+                    .withDetail("Invalid credentials")
+                    .build();
         }
-        if (
-            ex instanceof ErrorResponseException exp && exp.getBody() instanceof ProblemDetailWithCause problemDetailWithCause
-        ) return problemDetailWithCause;
+        if (ex instanceof ErrorResponseException exp
+                && exp.getBody() instanceof ProblemDetailWithCause problemDetailWithCause)
+            return problemDetailWithCause;
         return ProblemDetailWithCauseBuilder.instance().withStatus(toStatus(ex).value()).build();
     }
 
-    protected ProblemDetailWithCause customizeProblem(ProblemDetailWithCause problem, Throwable err, ServerWebExchange request) {
-        if (problem.getStatus() <= 0) problem.setStatus(toStatus(err));
+    protected ProblemDetailWithCause customizeProblem(ProblemDetailWithCause problem, Throwable err,
+            ServerWebExchange request) {
+        if (problem.getStatus() <= 0)
+            problem.setStatus(toStatus(err));
 
-        if (problem.getType() == null || problem.getType().equals(URI.create("about:blank"))) problem.setType(getMappedType(err));
+        if (problem.getType() == null || problem.getType().equals(URI.create("about:blank")))
+            problem.setType(getMappedType(err));
 
         // higher precedence to Custom/ResponseStatus types
         String title = extractTitle(err, problem.getStatus());
@@ -140,17 +145,17 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler implemen
         }
 
         Map<String, Object> problemProperties = problem.getProperties();
-        if (problemProperties == null || !problemProperties.containsKey(MESSAGE_KEY)) problem.setProperty(
-            MESSAGE_KEY,
-            getMappedMessageKey(err) != null ? getMappedMessageKey(err) : "error.http." + problem.getStatus()
-        );
+        if (problemProperties == null || !problemProperties.containsKey(MESSAGE_KEY))
+            problem.setProperty(
+                    MESSAGE_KEY,
+                    getMappedMessageKey(err) != null ? getMappedMessageKey(err) : "error.http." + problem.getStatus());
 
-        if (problemProperties == null || !problemProperties.containsKey(PATH_KEY)) problem.setProperty(PATH_KEY, getPathValue(request));
+        if (problemProperties == null || !problemProperties.containsKey(PATH_KEY))
+            problem.setProperty(PATH_KEY, getPathValue(request));
 
-        if (
-            (err instanceof WebExchangeBindException fieldException) &&
-            (problemProperties == null || !problemProperties.containsKey(FIELD_ERRORS_KEY))
-        ) problem.setProperty(FIELD_ERRORS_KEY, getFieldErrors(fieldException));
+        if ((err instanceof WebExchangeBindException fieldException) &&
+                (problemProperties == null || !problemProperties.containsKey(FIELD_ERRORS_KEY)))
+            problem.setProperty(FIELD_ERRORS_KEY, getFieldErrors(fieldException));
 
         problem.setCause(buildCause(err.getCause(), request).orElse(null));
 
@@ -158,22 +163,20 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler implemen
     }
 
     private String extractTitle(Throwable err, int statusCode) {
-        return getCustomizedTitle(err) != null ? getCustomizedTitle(err) : extractTitleForResponseStatus(err, statusCode);
+        return getCustomizedTitle(err) != null ? getCustomizedTitle(err)
+                : extractTitleForResponseStatus(err, statusCode);
     }
 
     private List<FieldErrorVM> getFieldErrors(WebExchangeBindException ex) {
         return ex
-            .getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(f ->
-                new FieldErrorVM(
-                    f.getObjectName().replaceFirst("DTO$", ""),
-                    f.getField(),
-                    StringUtils.isNotBlank(f.getDefaultMessage()) ? f.getDefaultMessage() : f.getCode()
-                )
-            )
-            .toList();
+                .getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(f -> new FieldErrorVM(
+                        f.getObjectName().replaceFirst("DTO$", ""),
+                        f.getField(),
+                        StringUtils.isNotBlank(f.getDefaultMessage()) ? f.getDefaultMessage() : f.getCode()))
+                .toList();
     }
 
     private String extractTitleForResponseStatus(Throwable err, int statusCode) {
@@ -183,11 +186,12 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler implemen
 
     private HttpStatus toStatus(final Throwable throwable) {
         // Let the ErrorResponse take this responsibility
-        if (throwable instanceof ErrorResponse err) return HttpStatus.valueOf(err.getBody().getStatus());
+        if (throwable instanceof ErrorResponse err)
+            return HttpStatus.valueOf(err.getBody().getStatus());
 
         return Optional.ofNullable(getMappedStatus(throwable)).orElse(
-            Optional.ofNullable(resolveResponseStatus(throwable)).map(ResponseStatus::value).orElse(HttpStatus.INTERNAL_SERVER_ERROR)
-        );
+                Optional.ofNullable(resolveResponseStatus(throwable)).map(ResponseStatus::value)
+                        .orElse(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     private ResponseStatus extractResponseStatus(final Throwable throwable) {
@@ -200,14 +204,16 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler implemen
     }
 
     private URI getMappedType(Throwable err) {
-        if (err instanceof MethodArgumentNotValidException) return ErrorConstants.CONSTRAINT_VIOLATION_TYPE;
+        if (err instanceof MethodArgumentNotValidException)
+            return ErrorConstants.CONSTRAINT_VIOLATION_TYPE;
         return ErrorConstants.DEFAULT_TYPE;
     }
 
     private String getMappedMessageKey(Throwable err) {
         if (err instanceof MethodArgumentNotValidException) {
             return ErrorConstants.ERR_VALIDATION;
-        } else if (err instanceof ConcurrencyFailureException || err.getCause() instanceof ConcurrencyFailureException) {
+        } else if (err instanceof ConcurrencyFailureException
+                || err.getCause() instanceof ConcurrencyFailureException) {
             return ErrorConstants.ERR_CONCURRENCY_FAILURE;
         } else if (err instanceof WebExchangeBindException) {
             return ErrorConstants.ERR_VALIDATION;
@@ -216,44 +222,52 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler implemen
     }
 
     private String getCustomizedTitle(Throwable err) {
-        if (err instanceof MethodArgumentNotValidException) return "Method argument not valid";
+        if (err instanceof MethodArgumentNotValidException)
+            return "Method argument not valid";
         return null;
     }
 
     private String getCustomizedErrorDetails(Throwable err) {
         Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
         if (activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_PRODUCTION)) {
-            if (err instanceof HttpMessageConversionException) return "Unable to convert http message";
-            if (err instanceof DataAccessException) return "Failure during data access";
-            if (containsPackageName(err.getMessage())) return "Unexpected runtime exception";
+            if (err instanceof HttpMessageConversionException)
+                return "Unable to convert http message";
+            if (err instanceof DataAccessException)
+                return "Failure during data access";
+            if (containsPackageName(err.getMessage()))
+                return "Unexpected runtime exception";
         }
         return err.getCause() != null ? err.getCause().getMessage() : err.getMessage();
     }
 
     private HttpStatus getMappedStatus(Throwable err) {
         // Where we disagree with Spring defaults
-        if (err instanceof AccessDeniedException) return HttpStatus.FORBIDDEN;
-        if (err instanceof ConcurrencyFailureException) return HttpStatus.CONFLICT;
-        if (err instanceof BadCredentialsException) return HttpStatus.UNAUTHORIZED;
-        if (err instanceof UsernameNotFoundException) return HttpStatus.UNAUTHORIZED;
+        if (err instanceof AccessDeniedException)
+            return HttpStatus.FORBIDDEN;
+        if (err instanceof ConcurrencyFailureException)
+            return HttpStatus.CONFLICT;
+        if (err instanceof BadCredentialsException)
+            return HttpStatus.UNAUTHORIZED;
+        if (err instanceof UsernameNotFoundException)
+            return HttpStatus.UNAUTHORIZED;
         return null;
     }
 
     private URI getPathValue(ServerWebExchange request) {
-        if (request == null) return URI.create("about:blank");
+        if (request == null)
+            return URI.create("about:blank");
         return request.getRequest().getURI();
     }
 
     private HttpHeaders buildHeaders(Throwable err) {
         return err instanceof BadRequestAlertException badRequestAlertException
-            ? HeaderUtil.createFailureAlert(
-                applicationName,
-                true,
-                badRequestAlertException.getEntityName(),
-                badRequestAlertException.getErrorKey(),
-                badRequestAlertException.getMessage()
-            )
-            : null;
+                ? HeaderUtil.createFailureAlert(
+                        applicationName,
+                        true,
+                        badRequestAlertException.getEntityName(),
+                        badRequestAlertException.getErrorKey(),
+                        badRequestAlertException.getMessage())
+                : null;
     }
 
     private HttpHeaders updateContentType(HttpHeaders headers) {
@@ -278,6 +292,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler implemen
 
     private boolean containsPackageName(String message) {
         // This list is for sure not complete
-        return StringUtils.containsAny(message, "org.", "java.", "net.", "jakarta.", "javax.", "com.", "io.", "de.", "com.pilates.booking");
+        return StringUtils.containsAny(message, "org.", "java.", "net.", "jakarta.", "javax.", "com.", "io.", "de.",
+                "com.pilates.booking");
     }
 }

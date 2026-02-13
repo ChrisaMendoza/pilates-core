@@ -41,6 +41,9 @@ public class AdminUserDTO implements Serializable {
     @Size(min = 2, max = 10)
     private String langKey;
 
+    @Size(max = 20)
+    private String phone;
+
     private String createdBy;
 
     private Instant createdDate;
@@ -61,9 +64,10 @@ public class AdminUserDTO implements Serializable {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.email = user.getEmail();
-        this.activated = user.isActivated();
         this.imageUrl = user.getImageUrl();
+        this.activated = user.isActivated();
         this.langKey = user.getLangKey();
+        this.phone = user.getPhone();
         this.createdBy = user.getCreatedBy();
         this.createdDate = user.getCreatedDate();
         this.lastModifiedBy = user.getLastModifiedBy();
@@ -135,6 +139,14 @@ public class AdminUserDTO implements Serializable {
         this.langKey = langKey;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public String getCreatedBy() {
         return createdBy;
     }
@@ -179,18 +191,19 @@ public class AdminUserDTO implements Serializable {
     @Override
     public String toString() {
         return "AdminUserDTO{" +
-            "login='" + login + '\'' +
-            ", firstName='" + firstName + '\'' +
-            ", lastName='" + lastName + '\'' +
-            ", email='" + email + '\'' +
-            ", imageUrl='" + imageUrl + '\'' +
-            ", activated=" + activated +
-            ", langKey='" + langKey + '\'' +
-            ", createdBy=" + createdBy +
-            ", createdDate=" + createdDate +
-            ", lastModifiedBy='" + lastModifiedBy + '\'' +
-            ", lastModifiedDate=" + lastModifiedDate +
-            ", authorities=" + authorities +
-            "}";
+                "login='" + login + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", activated=" + activated +
+                ", langKey='" + langKey + '\'' +
+                ", phone='" + phone + '\'' +
+                ", createdBy=" + createdBy +
+                ", createdDate=" + createdDate +
+                ", lastModifiedBy='" + lastModifiedBy + '\'' +
+                ", lastModifiedDate=" + lastModifiedDate +
+                ", authorities=" + authorities +
+                "}";
     }
 }

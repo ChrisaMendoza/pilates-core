@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import axios from 'axios';
 import type { ChangeEvent, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login, register } from '../api/auth';
@@ -25,12 +26,17 @@ const initialFormData: RegisterFormData = {
     confirmPassword: '',
 };
 
-function getErrorMessage(error: unknown): string {
-    if (error instanceof Error && error.message) {
-        return error.message;
+function getErrorMessage(error: any): string {
+    if (axios.isAxiosError(error) && error.response?.data) {
+        const data = error.response.data;
+        if (data.message === 'error.emailAlreadyUsed' || data.message === 'error.emailexists') {
+            return "Cet email est déjà associé à un compte.";
+        }
+        if (data.message === 'error.phoneAlreadyUsed' || data.message === 'error.phoneexists') {
+            return "Ce numéro de téléphone est déjà associé à un compte.";
+        }
     }
-
-    return 'Registration failed';
+    return "Une erreur est survenue lors de l'inscription. Veuillez vérifier vos informations.";
 }
 
 export default function RegisterPage() {
@@ -73,6 +79,8 @@ export default function RegisterPage() {
 
             <h1 className={styles.title}>Bienvenue !</h1>
 
+            {error && <p className={styles.error}>{error}</p>}
+
             <form onSubmit={onSubmit} className={styles.form}>
                 <div className={styles.inputGroup}>
                     <label htmlFor="firstName" className={styles.label}>Prénom</label>
@@ -114,7 +122,6 @@ export default function RegisterPage() {
                     <Link to="/login" className={styles.loginButton}>Déjà un compte ? Connexion</Link>
                 </div>
 
-                {error && <p className={styles.error}>{error}</p>}
             </form>
         </div>
     );

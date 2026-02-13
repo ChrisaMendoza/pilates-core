@@ -5,13 +5,7 @@ import { login } from '../api/auth';
 import { useAuth } from '../auth/AuthContext';
 import styles from './LoginPage.module.css';
 
-function getErrorMessage(error: unknown): string {
-    if (error instanceof Error && error.message) {
-        return error.message;
-    }
 
-    return 'Login failed';
-}
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -31,7 +25,7 @@ export default function LoginPage() {
             navigate('/profile', { state: { source: 'login' } });
         } catch (submitError: unknown) {
             console.error('LOGIN ERROR:', submitError);
-            setError(getErrorMessage(submitError));
+            setError("L'email ou le numéro de téléphone est inexistant et/ou le mot de passe est incorrect.");
         }
     };
 
@@ -42,6 +36,8 @@ export default function LoginPage() {
             </Link>
 
             <h1 className={styles.title}>Bienvenue !</h1>
+
+            {error && <p className={styles.error}>{error}</p>}
 
             <form onSubmit={onSubmit} className={styles.form}>
                 <div className={styles.inputGroup}>
@@ -80,7 +76,6 @@ export default function LoginPage() {
                     </Link>
                 </div>
 
-                {error && <p className={styles.error}>{error}</p>}
             </form>
         </div>
     );

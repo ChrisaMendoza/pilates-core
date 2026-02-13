@@ -28,6 +28,7 @@ export async function register(userData: any) {
         firstName: userData.firstName,
         lastName: userData.lastName,
         email: userData.email,
+        phone: userData.phone,
         password: userData.password,
         langKey: 'fr'
     });

@@ -57,6 +57,10 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     @Column("lang_key")
     private String langKey;
 
+    @Size(max = 20)
+    @Column("phone")
+    private String phone;
+
     @Size(max = 256)
     @Column("image_url")
     private String imageUrl;
@@ -128,6 +132,14 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getImageUrl() {
@@ -207,7 +219,8 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
 
     @Override
     public int hashCode() {
-        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        // see
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return getClass().hashCode();
     }
 
@@ -215,15 +228,16 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     @Override
     public String toString() {
         return "User{" +
-            "login='" + login + '\'' +
-            ", firstName='" + firstName + '\'' +
-            ", lastName='" + lastName + '\'' +
-            ", email='" + email + '\'' +
-            ", imageUrl='" + imageUrl + '\'' +
-            ", activated='" + activated + '\'' +
-            ", langKey='" + langKey + '\'' +
-            ", activationKey='" + activationKey + '\'' +
-            ", balanceCents='" + balanceCents + '\'' +
-            "}";
+                "login='" + login + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", activated='" + activated + '\'' +
+                ", langKey='" + langKey + '\'' +
+                ", activationKey='" + activationKey + '\'' +
+                ", balanceCents='" + balanceCents + '\'' +
+                "}";
     }
 }
