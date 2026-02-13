@@ -9,6 +9,9 @@ import PricingPage from './pages/PricingPage';
 import PaymentPage from './pages/PaymentPage';
 import ProfilePage from './pages/ProfilePage';
 import PlanningPage from './pages/PlanningPage';
+import CGVPage from './pages/CGVPage';
+import LegalNoticesPage from './pages/LegalNoticesPage';
+import CookiePolicyPage from './pages/CookiePolicyPage';
 
 export default function App() {
     return (
@@ -22,6 +25,9 @@ export default function App() {
                     <Route path="/payment" element={<MainLayout><PaymentPage /></MainLayout>} />
                     <Route path="/profile" element={<MainLayout><ProfilePage /></MainLayout>} />
                     <Route path="/planning" element={<MainLayout><PlanningPage /></MainLayout>} />
+                    <Route path="/cgv" element={<MainLayout><CGVPage /></MainLayout>} />
+                    <Route path="/mentions-legales" element={<MainLayout><LegalNoticesPage /></MainLayout>} />
+                    <Route path="/politique-cookies" element={<MainLayout><CookiePolicyPage /></MainLayout>} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </BrowserRouter>

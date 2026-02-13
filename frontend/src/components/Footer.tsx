@@ -29,8 +29,8 @@ export default function Footer() {
                     <div className={styles.footerLinks}>
                         <Link to="/about" className={styles.footerLink}>À propos de nous</Link>
                         <Link to="/cgv" className={styles.footerLink}>Conditions Générales de Vente</Link>
-                        <Link to="/legal" className={styles.footerLink}>Mentions Légales</Link>
-                        <Link to="/cookies" className={styles.footerLink}>Politique de cookies</Link>
+                        <Link to="/mentions-legales" className={styles.footerLink}>Mentions Légales</Link>
+                        <Link to="/politique-cookies" className={styles.footerLink}>Politique de cookies</Link>
                     </div>
                 </div>
             </div>
