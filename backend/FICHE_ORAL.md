@@ -98,3 +98,26 @@ Le jury va sûrement demander à voir le code. Prépare ces 4 fichiers ouverts d
 ## 6. Pour Finir
 
 **"En conclusion, ce projet m'a permis de maîtriser l'architecture REST moderne et la programmation réactive, qui est un véritable atout pour les applications performantes d'aujourd'hui."**
+
+---
+
+## 7. 📘 Annexe : Historique des Principaux Bugs Résolus (Storytelling pour l'oral)
+
+Si on te demande : *"Quels problèmes techniques avez-vous rencontrés ?"*, voici deux exemples concrets tirés du développement récent.
+
+### Cas #1 : L'Erreur 500 "Colonne Manquante"
+*   **Symptôme** : Impossible d'appeler `/api/account` (Erreur 500).
+*   **Diagnostic** : En inspectant les logs, j'ai vu que la requête SQL échouait. Une colonne `balance_cents` était attendue par le code Java (entité `User`), mais absente de la base de données.
+*   **Cause** : Le fichier de migration Liquibase (`20260210120000_add_waitlist...`) n'était pas déclaré dans le fichier maître `master.xml`.
+*   **Solution** : J'ai ajouté l'inclusion du fichier XML manquant et redémarré le backend pour que Liquibase mette à jour le schéma.
+
+### Cas #2 : Le Blocage "Infini" (Deadlock AOP)
+*   **Symptôme** : La requête `/api/account` tournait indéfiniment (loading infini) sans erreur explicite au début, puis un timeout réseau.
+*   **Diagnostic** : C'était un conflit entre la gestion des transactions (`@Transactional`) et la sécurité réactive de Spring lors d'un "jointure" complexe fetchant les rôles utilisateur.
+*   **Solution Technique** :
+    1.  J'ai retiré l'annotation `@Transactional` qui posait problème en contexte réactif.
+    2.  J'ai refactorisé la méthode `getUserWithAuthorities` pour séparer la récupération de l'utilisateur et de ses rôles en deux étapes distinctes (Programmation Réactive séquentielle), ce qui est plus sûr et non-bloquant.
+
+### Cas #3 : Token JWT non transmis
+*   **Symptôme** : L'utilisateur était connecté mais le Header affichait toujours "Se connecter".
+*   **Solution** : J'ai ajouté des logs dans l'intercepteur HTTP (`http.ts`) pour confirmer que le token était bien stocké dans le localStorage mais mal attaché. J'ai corrigé la configuration Axios pour inclure le header `Authorization: Bearer ...` à chaque requête.
