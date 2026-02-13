@@ -20,9 +20,12 @@ public class EventServiceImpl implements EventService {
     private static final Logger LOG = LoggerFactory.getLogger(EventServiceImpl.class);
 
     private final EventRepository eventRepository;
+    private final com.pilates.booking.repository.BookingRepository bookingRepository;
 
-    public EventServiceImpl(EventRepository eventRepository) {
+    public EventServiceImpl(EventRepository eventRepository,
+            com.pilates.booking.repository.BookingRepository bookingRepository) {
         this.eventRepository = eventRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     @Override
@@ -42,34 +45,40 @@ public class EventServiceImpl implements EventService {
         LOG.debug("Request to partially update Event : {}", event);
 
         return eventRepository
-            .findById(event.getId())
-            .map(existingEvent -> {
-                if (event.getCoachName() != null) {
-                    existingEvent.setCoachName(event.getCoachName());
-                }
-                if (event.getStartAt() != null) {
-                    existingEvent.setStartAt(event.getStartAt());
-                }
-                if (event.getEndAt() != null) {
-                    existingEvent.setEndAt(event.getEndAt());
-                }
-                if (event.getCapacity() != null) {
-                    existingEvent.setCapacity(event.getCapacity());
-                }
-                if (event.getStatus() != null) {
-                    existingEvent.setStatus(event.getStatus());
-                }
+                .findById(event.getId())
+                .map(existingEvent -> {
+                    if (event.getCoachName() != null) {
+                        existingEvent.setCoachName(event.getCoachName());
+                    }
+                    if (event.getStartAt() != null) {
+                        existingEvent.setStartAt(event.getStartAt());
+                    }
+                    if (event.getEndAt() != null) {
+                        existingEvent.setEndAt(event.getEndAt());
+                    }
+                    if (event.getCapacity() != null) {
+                        existingEvent.setCapacity(event.getCapacity());
+                    }
+                    if (event.getStatus() != null) {
+                        existingEvent.setStatus(event.getStatus());
+                    }
 
-                return existingEvent;
-            })
-            .flatMap(eventRepository::save);
+                    return existingEvent;
+                })
+                .flatMap(eventRepository::save);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<Event> findAll() {
         LOG.debug("Request to get all Events");
-        return eventRepository.findAll();
+        return eventRepository.findAll()
+                .flatMap(event -> bookingRepository.countByEventIdAndStatus(event.getId(), "BOOKED")
+                        .defaultIfEmpty(0L)
+                        .map(count -> {
+                            event.setBookingsCount(count.intValue());
+                            return event;
+                        }));
     }
 
     public Mono<Long> countAll() {
@@ -80,7 +89,13 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public Mono<Event> findOne(Long id) {
         LOG.debug("Request to get Event : {}", id);
-        return eventRepository.findById(id);
+        return eventRepository.findById(id)
+                .flatMap(event -> bookingRepository.countByEventIdAndStatus(event.getId(), "BOOKED")
+                        .defaultIfEmpty(0L)
+                        .map(count -> {
+                            event.setBookingsCount(count.intValue());
+                            return event;
+                        }));
     }
 
     @Override

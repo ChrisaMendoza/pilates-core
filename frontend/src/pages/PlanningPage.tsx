@@ -18,6 +18,8 @@ interface Session {
     level: string; // 'Débutant', 'Intermédiaire', 'Avancé'
     date: string; // ISO string without time
     isPast: boolean;
+    capacity: number;
+    bookingsCount: number;
 }
 
 const INSTRUCTORS = ['Mélanie', 'Thomas', 'Sarah', 'Julie', 'Antoine'];
@@ -58,7 +60,9 @@ const generateFallbackMockData = (): Session[] => {
                 type: 'PILATES REFORMER',
                 level,
                 date: dateStr,
-                isPast: sessionStartTime.getTime() < baseDate.getTime()
+                isPast: sessionStartTime.getTime() < baseDate.getTime(),
+                capacity: 8,
+                bookingsCount: Math.floor(Math.random() * 9) // Mock random capacity (0-8) to trigger full/warning states
             });
         }
     }
@@ -103,7 +107,9 @@ export default function PlanningPage() {
                         type: 'PILATES REFORMER',
                         level: LEVELS[event.id % LEVELS.length],
                         date: event.startAt.split('T')[0],
-                        isPast: startDate.getTime() < new Date().getTime()
+                        isPast: startDate.getTime() < new Date().getTime(),
+                        capacity: event.capacity,
+                        bookingsCount: event.bookingsCount || 0
                     };
                 });
 
@@ -381,13 +387,31 @@ export default function PlanningPage() {
                                     {session.type}
                                 </div>
                                 {!session.isPast && (
-                                    <button
-                                        type="button"
-                                        className={styles.bookButton}
-                                        onClick={() => handleBooking(session)}
-                                    >
-                                        {bookedSessionKeys.has(`${session.id}:${session.date}:${session.time}`) ? 'Inscrit(e)' : "S'inscrire"}
-                                    </button>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                                        {(() => {
+                                            const remaining = session.capacity - session.bookingsCount;
+                                            const isFull = remaining <= 0;
+                                            const isAlmostFull = remaining > 0 && remaining <= 2;
+
+                                            if (isFull) {
+                                                return <span className={styles.fullLabel}>COMPLET</span>;
+                                            }
+
+                                            return (
+                                                <>
+                                                    {isAlmostFull && <span className={styles.availabilityWarning}>Il reste {remaining} places !</span>}
+                                                    <button
+                                                        type="button"
+                                                        className={styles.bookButton}
+                                                        onClick={() => handleBooking(session)}
+                                                        disabled={isFull}
+                                                    >
+                                                        {bookedSessionKeys.has(`${session.id}:${session.date}:${session.time}`) ? 'Inscrit(e)' : "S'inscrire"}
+                                                    </button>
+                                                </>
+                                            );
+                                        })()}
+                                    </div>
                                 )}
                             </div>
                         ))

@@ -121,3 +121,46 @@ Si on te demande : *"Quels problèmes techniques avez-vous rencontrés ?"*, voic
 ### Cas #3 : Token JWT non transmis
 *   **Symptôme** : L'utilisateur était connecté mais le Header affichait toujours "Se connecter".
 *   **Solution** : J'ai ajouté des logs dans l'intercepteur HTTP (`http.ts`) pour confirmer que le token était bien stocké dans le localStorage mais mal attaché. J'ai corrigé la configuration Axios pour inclure le header `Authorization: Bearer ...` à chaque requête.
+
+---
+
+## 7. 📜 Cheat Sheet : Résumé du Code Backend (1 ligne / classe)
+
+Voici un récapitulatif ultra-rapide pour expliquer ton code lors de l'oral.
+
+### 🌐 Couche Web (Controllers REST)
+*   **`AccountResource.java`** : Gère le compte de l'utilisateur connecté (profil, changement mot de passe).
+*   **`AuthenticateController.java`** : Gère l'authentification (login) et la génération du token JWT.
+*   **`BookingResource.java`** : API pour créer, modifier et annuler les réservations des clients.
+*   **`EventResource.java`** : API pour gérer les séances du planning (création, liste, modification).
+*   **`StudioResource.java`** : API pour gérer les infos du studio (lieux, salles).
+*   **`PackResource.java`** : API pour la gestion des packs de crédits.
+*   **`PeriodSubscriptionResource.java`** : API pour les abonnements mensuels/annuels.
+*   **`UserResource.java`** : API d'administration pour gérer les utilisateurs (création, suppression).
+*   **`PublicUserResource.java`** : API publique pour récupérer les utilisateurs (ex: pour les listes déroulantes).
+
+### 🧠 Couche Service (Logique Métier)
+*   **`BookingServiceImpl.java`** : Contient la logique de réservation (vérifie capacité, solde, règles d'annulation).
+*   **`EventServiceImpl.java`** : Gère les séances (calcul du nombre d'inscrits, statuts).
+*   **`UserService.java`** : Gère les utilisateurs, l'inscription, l'activation et la mise à jour des infos.
+*   **`MailService.java`** : Service utilitaire pour envoyer des emails (activation, notifs).
+*   **`DomainUserDetailsService.java`** : Connecte Spring Security à notre base de données pour charger l'utilisateur au login.
+
+### 💾 Couche Repository (Accès Base de Données)
+*   **`BookingRepository.java`** : Requêtes SQL/R2DBC pour la table `booking` (sauvegarde, recherche par user/event).
+*   **`EventRepository.java`** : Requêtes pour la table `event` (planning).
+*   **`UserRepository.java`** : Requêtes pour la table `jhi_user` (trouver par login, email).
+*   **`PackRepository.java`** : Accès aux données des packs.
+
+### 📦 Couche Domain (Entités / Modèle)
+*   **`User.java`** : Représente un utilisateur (nom, email, mot de passe hashé, rôles).
+*   **`Role/Authority.java`** : Les rôles des utilisateurs (`ROLE_USER`, `ROLE_ADMIN`).
+*   **`Event.java`** : Une séance de sport planifiée (date, coach, capacité, activité).
+*   **`Booking.java`** : Une réservation (lien entre un User et un Event + statut).
+*   **`Pack.java`** : Un produit "Pack de crédits" achetable.
+*   **`Studio.java`** : Un lieu physique ou une salle.
+
+### ⚙️ Configuration & Sécurité
+*   **`SecurityConfiguration.java`** : Configure qui a accès à quoi (ex: `/api/admin/**` réservé aux admins).
+*   **`Constants.java`** : Contient les constantes globales (regex email, login par défaut).
+*   **`ApplicationProperties.java`** : Mappe les configs du fichier `application.yml` vers des variables Java.

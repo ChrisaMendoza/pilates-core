@@ -1,128 +1,163 @@
-# CORE Pilates - Système de Réservation
+# 🧘‍♀️ CORE Pilates - Plateforme de Réservation Premium
 
-Une plateforme de gestion de réservation premium et moderne pour les studios de Pilates. Ce projet est un **monorepo** contenant à la fois le backend réactif Spring Boot et le frontend moderne en React.
-
----
-
-## 🏗 Architecture du Projet
-
-Ce projet suit une structure **Monorepo** :
-
-- **/frontend** : Une application React haute performance propulsée par Vite et TypeScript.
-- **/backend** : Une application Spring Boot réactive utilisant R2DBC et PostgreSQL, construite avec le framework JHipster.
+Bienvenue sur le dépôt officiel de **CORE Pilates**, une application de gestion de studio de Pilates nouvelle génération. Ce projet est conçu pour offrir une expérience utilisateur fluide, réactive et haut de gamme, tant pour les clients que pour les administrateurs.
 
 ---
 
-## 🚀 Stack Technique
+## 🌟 Vision du Projet
 
-### Frontend
-- **Framework** : [React 19](https://react.dev/)
-- **Outil de Build** : [Vite](https://vitejs.dev/)
-- **Langage** : [TypeScript](https://www.typescriptlang.org/)
-- **Routage** : [React Router 7](https://reactrouter.com/)
-- **Client API** : [Axios](https://axios-http.com/)
-
-### Backend
-- **Framework** : [Spring Boot 3.4.5](https://spring.io/projects/spring-boot)
-- **Infrastructure** : [JHipster 8.11.0](https://www.jhipster.tech/)
-- **Persistance** : PostgreSQL avec [Spring Data R2DBC](https://spring.io/projects/spring-data-r2dbc) (Réactif)
-- **Migrations BDD** : [Liquibase](https://www.liquibase.org/)
-- **Outil de Build** : [Maven](https://maven.apache.org/)
-- **Version Java** : 17
+L'objectif de CORE Pilates est de moderniser la réservation de séances de sport en résolvant les problèmes courants des systèmes traditionnels :
+*   **Concurrence** : Gestion des réservations simultanées sans surbooking grâce à une architecture non-bloquante.
+*   **Performance** : Temps de réponse ultra-rapide (< 100ms).
+*   **Expérience Client** : Interface intuitive, design "Glassmorphism" épuré et feedbacks immédiats.
 
 ---
 
-## 🛠 Guide de Démarrage
+## 🏗 Architecture & Stack Technique
+
+Ce projet est un **Monorepo** structuré pour séparer clairement les responsabilités tout en facilitant le développement local.
+
+### 🎨 Frontend (`/frontend`)
+Une Single Page Application (SPA) moderne et typée.
+*   **Framework** : [React 19](https://react.dev/)
+*   **Langage** : [TypeScript](https://www.typescriptlang.org/) (Strict mode)
+*   **Build & Dev Server** : [Vite](https://vitejs.dev/) (HMR instantané)
+*   **État Global** : Context API & Hooks personnalisés (`useAuth`, etc.)
+*   **Styles** : CSS Modules avec variables CSS (Design System complet)
+*   **Communication** : [Axios](https://axios-http.com/) avec intercepteurs pour JWT
+
+### ⚙️ Backend (`/backend`)
+Une API RESTful réactive, robuste et sécurisée.
+*   **Core** : [Java 17](https://openjdk.org/projects/jdk/17/) & [Spring Boot 3.4.5](https://spring.io/projects/spring-boot)
+*   **Paradigme** : Programmation Réactive avec [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html) (Project Reactor)
+*   **Base de Données** : [PostgreSQL](https://www.postgresql.org/) avec pilote R2DBC (Reactive Relational Database Connectivity)
+*   **Versioning BDD** : [Liquibase](https://www.liquibase.org/) pour les migrations de schéma
+*   **Sécurité** : Spring Security & JWT (JSON Web Tokens) stateless
+*   **Outil de Build** : Maven
+
+---
+
+## 🚀 Fonctionnalités Clés
+
+### Pôle Client
+*   **🔐 Authentification Hybride** : Connexion/Inscription sécurisée, gestion de session JWT persistante.
+*   **📅 Planning Interactif** : Vue calendrier dynamique, filtres par coach/niveau, indicateurs de disponibilité ("Il reste 2 places", "COMPLET").
+*   **💳 Système de Crédits** : Achat de packs ou abonnements, débit automatique à la réservation.
+*   **👤 Espace Membre** : Historique des cours, gestion de profil, upload d'avatar.
+*   **⚡ Réservation & Annulation** : Action instantanée avec règle métier (remboursement si annulation > 24h).
+
+### Pôle Administration
+*   **👥 Gestion des Utilisateurs** : Liste complète, activation/désactivation de comptes, suppression (GDPR).
+*   **📊 Tableau de Bord** : (À venir) Statistiques d'occupation.
+*   **🛠 Configuration du Studio** : Gestion des salles et des équipements.
+
+---
+
+## 🛠 Guide d'Installation & Démarrage
 
 ### Prérequis
-- **Node.js** : v22.15.0 ou supérieur
-- **Java** : JDK 17
-- **Docker** : Recommandé pour lancer la base de données PostgreSQL rapidement.
+Assurez-vous d'avoir installé :
+*   **Java JDK 17**
+*   **Node.js** (v18 ou supérieur)
+*   **Docker Desktop** (pour la base de données)
 
----
+### 1. Clonage du Projet
+```bash
+git clone https://github.com/votre-repo/pilates-core.git
+cd pilates-core
+```
 
-### 1. Démarrage Rapide (Script)
-
-#### 🍎 macOS / 🐧 Linux
-L'option la plus simple pour lancer le frontend et le backend simultanément :
+### 2. Démarrage Rapide (Script Automatisé)
+Pour macOS et Linux, un script lance tout l'environnement en une commande :
 ```bash
 ./start-all.sh
 ```
-*Cela ouvrira deux fenêtres de terminal séparées pour le back et le front.*
-
-#### 🪟 Windows
-Il n'y a pas de script automatique, veuillez suivre la méthode manuelle ci-dessous.
+*Ce script lance le conteneur Docker PostgreSQL, le Backend (Spring Boot) et le Frontend (Vite) dans des terminaux séparés.*
 
 ---
 
-### 2. Démarrage Manuel
+### 3. Démarrage Manuel (Pas à pas)
 
-#### Étape 1 : Lancer la Base de Données (Optionnel si vous avez une BDD locale)
-Si vous utilisez Docker :
+#### A. Base de Données
+Lancez PostgreSQL via Docker Compose :
 ```bash
 cd backend
 docker-compose -f src/main/docker/postgresql.yml up -d
 ```
 
-#### Étape 2 : Lancer le Backend
-
-**🍎 macOS / 🐧 Linux**
+#### B. Backend (API)
+Dans un nouveau terminal :
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
+*Le serveur démarrera sur http://localhost:8080*
 
-**🪟 Windows (Command Prompt)**
-```cmd
-cd backend
-mvnw spring-boot:run
-```
-*Ou si vous n'avez pas mvnw configuré :*
-```cmd
-mvn spring-boot:run
-```
-
-#### Étape 3 : Lancer le Frontend
-
-**🍎 macOS / 🐧 Linux**
+#### C. Frontend (Client)
+Dans un autre terminal :
 ```bash
 cd frontend
-npm install  # (seulement la première fois)
+npm install  # Première fois uniquement
 npm run dev
 ```
+*L'application sera accessible sur http://localhost:5173*
 
-**🪟 Windows (Powershell / cmd)**
-```cmd
+---
+
+## 📚 Documentation API (Swagger)
+
+Le backend expose une documentation OpenAPI v3 interactive (Swagger UI).
+Une fois le backend lancé, accédez à :
+
+👉 **http://localhost:8080/webflux/swagger-ui.html**
+
+Vous pourrez y tester tous les endpoints (Auth, Booking, Event...) directement depuis votre navigateur.
+
+---
+
+## 🧪 Tests & Qualité
+
+### Backend
+Exécuter les tests unitaires et d'intégration :
+```bash
+cd backend
+./mvnw test
+```
+
+### Frontend
+Linter le code pour vérifier la qualité TypeScript :
+```bash
 cd frontend
-npm install
-npm run dev
+npm run lint
 ```
 
 ---
 
-## 👤 Comptes de Test
+## 📂 Structure du Projet
 
-Une fois l'application lancée, vous pouvez vous connecter avec les identifiants suivants :
-
-| Rôle | Login | Mot de passe |
-|------|-------|--------------|
-| **Admin** | `admin` | `admin` |
-| **Utilisateur** | `user` | `user` |
-
-> **Note** : L'inscription est également fonctionnelle pour créer de nouveaux comptes utilisateurs.
+```
+pilates-core/
+├── backend/                 # API Spring Boot
+│   ├── src/main/java/       # Code source Java (Controllers, Services...)
+│   ├── src/main/resources/  # Config (application.yml), Liquibase, Templates mails
+│   └── pom.xml              # Dépendances Maven
+├── frontend/                # Application React
+│   ├── src/
+│   │   ├── api/             # Appels HTTP (Axios)
+│   │   ├── assets/          # Images, Fontes
+│   │   ├── auth/            # Context d'authentification
+│   │   ├── components/      # Composants réutilisables (Navbar, Footer...)
+│   │   ├── pages/           # Pages principales (Planning, Login...)
+│   │   └── types/           # Définitions TypeScript
+│   └── package.json         # Dépendances Node
+└── README.md                # Ce fichier
+```
 
 ---
 
-## 🎨 Fonctionnalités Principales
+## 👤 Auteurs
 
-- **Interface Premium** : Design soigné inspiré du glassmorphism pour une expérience utilisateur haut de gamme.
-- **Gestion des Réservations** : Planning interactif, système de crédits, et gestion des annulations (règle des 24h).
-- **Backend Réactif** : Architecture API non-bloquante pour des performances optimales.
-- **Authentification Sécurisée** : Gestion des rôles (Admin/User) et protection des endpoints.
-- **Pages Légales** : CGV, Mentions Légales et Politique de Cookies intégrées.
+Projet développé par **Chrisa Mendoza**.
+*Étudiant en développement Fullstack - Projet de fin d'année.*
 
----
-
-## 📝 Licence
-
-Ce projet est privé et destiné à un usage interne pour CORE Pilates.
+© 2026 CORE Pilates. Tous droits réservés.

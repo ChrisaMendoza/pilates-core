@@ -7,5 +7,5 @@ export type Account = {
     imageUrl?: string;
 };
 
-export type Event = { id: number; startAt: string; endAt: string; capacity: number; coachName?: string; waitlistOpen?: boolean };
+export type Event = { id: number; startAt: string; endAt: string; capacity: number; coachName?: string; waitlistOpen?: boolean; bookingsCount?: number };
 export type Booking = { id: number; status?: string; eventId?: number; userId?: number; createdAt?: string; cancelledAt?: string };

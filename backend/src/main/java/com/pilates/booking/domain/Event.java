@@ -59,6 +59,9 @@ public class Event implements Serializable {
     @Column("class_type_id")
     private Long classTypeId;
 
+    @org.springframework.data.annotation.Transient
+    private Integer bookingsCount;
+
     public Long getId() {
         return this.id;
     }
@@ -194,6 +197,14 @@ public class Event implements Serializable {
         this.classTypeId = classType;
     }
 
+    public Integer getBookingsCount() {
+        return bookingsCount;
+    }
+
+    public void setBookingsCount(Integer bookingsCount) {
+        this.bookingsCount = bookingsCount;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -213,13 +224,13 @@ public class Event implements Serializable {
     @Override
     public String toString() {
         return "Event{" +
-            "id=" + getId() +
-            ", coachName='" + getCoachName() + "'" +
-            ", startAt='" + getStartAt() + "'" +
-            ", endAt='" + getEndAt() + "'" +
-            ", capacity=" + getCapacity() +
-            ", status='" + getStatus() + "'" +
-            ", waitlistOpen='" + getWaitlistOpen() + "'" +
-            "}";
+                "id=" + getId() +
+                ", coachName='" + getCoachName() + "'" +
+                ", startAt='" + getStartAt() + "'" +
+                ", endAt='" + getEndAt() + "'" +
+                ", capacity=" + getCapacity() +
+                ", status='" + getStatus() + "'" +
+                ", waitlistOpen='" + getWaitlistOpen() + "'" +
+                "}";
     }
 }
