@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -314,12 +315,24 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Mono<User> getUserWithAuthoritiesByLogin(String login) {
-        return userRepository.findOneWithAuthoritiesByLogin(login);
+        return userRepository.findOneWithAuthoritiesByLogin(login); // Utilise une requête optimisée pour récupérer
+                                                                    // aussi les rôles
     }
 
-    @Transactional(readOnly = true)
+    /**
+     * Cette méthode récupère l'utilisateur courant avec ses autorités (rôles).
+     * Elle est cruciale pour le fonctionnement du frontend (Account).
+     * Note: @Transactional a été retiré ici pour éviter des blocages AOP réactifs.
+     * On récupère d'abord l'utilisateur, puis ses rôles manuellement pour éviter
+     * les problèmes de performance/blocage avec les JOINs.
+     */
     public Mono<User> getUserWithAuthorities() {
-        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
+        return SecurityUtils.getCurrentUserLogin()
+                .flatMap(userRepository::findOneByLogin)
+                .flatMap(user -> userRepository.findAllAuthoritiesByUserId(user.getId())
+                        .collect(Collectors.toSet())
+                        .doOnNext(authorities -> user.setAuthorities(authorities))
+                        .thenReturn(user));
     }
 
     /**

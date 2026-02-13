@@ -54,6 +54,9 @@ public interface UserRepository extends R2dbcRepository<User, Long>, UserReposit
 
     @Query("DELETE FROM jhi_user_authority WHERE user_id = :userId")
     Mono<Void> deleteUserAuthorities(Long userId);
+
+    @Query("SELECT * FROM jhi_authority a JOIN jhi_user_authority ua ON a.name = ua.authority_name WHERE ua.user_id = :userId")
+    Flux<Authority> findAllAuthoritiesByUserId(Long userId);
 }
 
 interface DeleteExtended<T> {

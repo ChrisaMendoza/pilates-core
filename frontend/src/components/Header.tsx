@@ -4,6 +4,7 @@ import styles from './Header.module.css';
 
 export default function Header() {
     const { account, signOut } = useAuth();
+    console.log('Header: Current account state:', account);
     const location = useLocation();
 
     const isActive = (path: string) => location.pathname === path;

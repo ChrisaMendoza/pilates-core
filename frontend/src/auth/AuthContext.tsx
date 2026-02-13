@@ -11,9 +11,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const refresh = async () => {
         try {
+            console.log('AuthContext: Refreshing account...');
             const acc = await getAccount();
+            console.log('AuthContext: Account fetched:', acc);
             setAccount(acc);
-        } catch {
+        } catch (error) {
+            console.error('AuthContext: Failed to fetch account', error);
             setAccount(null);
             logout();
         } finally {

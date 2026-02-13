@@ -8,6 +8,7 @@ export async function login(username: string, password: string) {
     });
 
     const token: string = res.data.id_token;
+    console.log('API: Login success, received token:', token);
     localStorage.setItem(TOKEN_KEY, token);
     return token;
 }

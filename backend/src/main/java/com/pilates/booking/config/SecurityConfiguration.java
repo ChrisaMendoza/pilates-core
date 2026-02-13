@@ -40,8 +40,7 @@ public class SecurityConfiguration {
     @Bean
     public ReactiveAuthenticationManager reactiveAuthenticationManager(ReactiveUserDetailsService userDetailsService) {
         UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
-            userDetailsService
-        );
+                userDetailsService);
         authenticationManager.setPasswordEncoder(passwordEncoder());
         return authenticationManager;
     }
@@ -49,26 +48,21 @@ public class SecurityConfiguration {
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .securityMatcher(
-                new NegatedServerWebExchangeMatcher(new OrServerWebExchangeMatcher(pathMatchers("/app/**", "/i18n/**", "/content/**")))
-            )
-            .cors(withDefaults())
-            .csrf(csrf -> csrf.disable())
-            .addFilterAfter(new SpaWebFilter(), SecurityWebFiltersOrder.HTTPS_REDIRECT)
-            .headers(headers ->
-                headers
-                    .contentSecurityPolicy(csp -> csp.policyDirectives(jHipsterProperties.getSecurity().getContentSecurityPolicy()))
-                    .frameOptions(frameOptions -> frameOptions.mode(Mode.DENY))
-                    .referrerPolicy(referrer ->
-                        referrer.policy(ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
-                    )
-                    .permissionsPolicy(permissions ->
-                        permissions.policy(
-                            "camera=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=()"
-                        )
-                    )
-            )
-            .authorizeExchange(authz ->
+                .securityMatcher(
+                        new NegatedServerWebExchangeMatcher(
+                                new OrServerWebExchangeMatcher(pathMatchers("/app/**", "/i18n/**", "/content/**"))))
+                .cors(withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .addFilterAfter(new SpaWebFilter(), SecurityWebFiltersOrder.HTTPS_REDIRECT)
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives(jHipsterProperties.getSecurity().getContentSecurityPolicy()))
+                        .frameOptions(frameOptions -> frameOptions.mode(Mode.DENY))
+                        .referrerPolicy(referrer -> referrer.policy(
+                                ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                        .permissionsPolicy(permissions -> permissions.policy(
+                                "camera=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=()")))
+                .authorizeExchange(authz ->
                 // prettier-ignore
                 authz
                         .pathMatchers("/").permitAll()
@@ -79,6 +73,9 @@ public class SecurityConfiguration {
                         .pathMatchers("/api/account/reset-password/init").permitAll()
                         .pathMatchers("/api/account/reset-password/finish").permitAll()
                         .pathMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                        .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/events").permitAll()
+                        .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/class-types").permitAll()
+                        .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/studios").permitAll()
                         .pathMatchers("/api/**").authenticated()
                         .pathMatchers("/services/**").authenticated()
                         .pathMatchers("/v3/api-docs/**").permitAll()
@@ -88,10 +85,9 @@ public class SecurityConfiguration {
                         .pathMatchers("/management/health/**").permitAll()
                         .pathMatchers("/management/info").permitAll()
                         .pathMatchers("/management/prometheus").permitAll()
-                        .pathMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
-            )
-            .httpBasic(basic -> basic.disable())
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
+                        .pathMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN))
+                .httpBasic(basic -> basic.disable())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
         return http.build();
     }
 }
