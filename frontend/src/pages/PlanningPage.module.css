@@ -292,6 +292,10 @@
 }
 
 .bookButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
     font-size: var(--text-sm);
     color: var(--color-text-primary);
     text-decoration: underline;
@@ -301,6 +305,37 @@
 
 .bookButton:hover {
     opacity: 0.7;
+}
+
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: var(--color-white);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    width: min(90vw, 460px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal p {
+    margin-bottom: var(--spacing-md);
+}
+
+.modalButton {
+    background: var(--color-dark);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs) var(--spacing-md);
+    cursor: pointer;
 }
 
 @media (max-width: 768px) {

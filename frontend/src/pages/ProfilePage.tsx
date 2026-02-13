@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { offerCatalog } from '../data/offers';
-import { getPurchasesForUser, type PurchaseRecord } from '../storage/purchases';
+import { getPurchasesForUser } from '../storage/purchases';
+import { BOOKINGS_UPDATED_EVENT, getBookingsForUser, type StoredBooking } from '../storage/bookings';
 import styles from './ProfilePage.module.css';
 
 type ProfileData = {
@@ -16,22 +17,21 @@ type ProfileData = {
 
 const avatars = ['🧘', '💪', '🌸', '🔥', '✨', '🧡'];
 
-const futureBookings = [
-    'Lundi 18:30 · Signature Core for All',
-    'Mercredi 12:30 · Advanced Core',
-];
-
-const pastBookings = [
-    'Samedi dernier 10:00 · Signature Core for All',
-    'Semaine dernière 19:30 · Advanced Core',
-];
+const formatBookingLabel = (booking: StoredBooking) => {
+    const dateLabel = new Date(`${booking.date}T${booking.time}`).toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+    });
+    return `${dateLabel} · ${booking.time} · ${booking.sessionTitle}`;
+};
 
 export default function ProfilePage() {
     const { account } = useAuth();
 
     const [selectedAvatar, setSelectedAvatar] = useState(avatars[0]);
     const [isEditing, setIsEditing] = useState(false);
-    const [purchases, setPurchases] = useState<PurchaseRecord[]>([]);
+    const [, setBookingsVersion] = useState(0);
     const [profileData, setProfileData] = useState<ProfileData>({
         firstName: account?.firstName ?? '',
         lastName: account?.lastName ?? '',
@@ -49,14 +49,28 @@ export default function ProfilePage() {
 
     const firstName = profileData.firstName || account?.firstName || account?.login?.split('@')[0] || 'Membre';
 
-    useEffect(() => {
-        if (!account?.login) {
-            setPurchases([]);
-            return;
-        }
+    const purchases = account?.login ? getPurchasesForUser(account.login) : [];
+    const bookings = account?.login ? getBookingsForUser(account.login) : [];
 
-        setPurchases(getPurchasesForUser(account.login));
-    }, [account?.login]);
+    useEffect(() => {
+        const update = () => setBookingsVersion((current) => current + 1);
+        window.addEventListener(BOOKINGS_UPDATED_EVENT, update);
+        return () => window.removeEventListener(BOOKINGS_UPDATED_EVENT, update);
+    }, []);
+
+    const { upcomingBookings, previousBookings } = useMemo(() => {
+        const now = new Date();
+        const sorted = [...bookings].sort((a, b) => {
+            const dateA = new Date(`${a.date}T${a.time}`).getTime();
+            const dateB = new Date(`${b.date}T${b.time}`).getTime();
+            return dateA - dateB;
+        });
+
+        return {
+            upcomingBookings: sorted.filter((booking) => new Date(`${booking.date}T${booking.time}`).getTime() >= now.getTime()),
+            previousBookings: sorted.filter((booking) => new Date(`${booking.date}T${booking.time}`).getTime() < now.getTime()),
+        };
+    }, [bookings]);
 
     const onChange = (field: keyof ProfileData, value: string) => {
         setProfileData(prev => ({ ...prev, [field]: value }));
@@ -140,13 +154,15 @@ export default function ProfilePage() {
                     <div>
                         <h3>Futures</h3>
                         <ul className={styles.list}>
-                            {futureBookings.map((booking) => <li key={booking}>{booking}</li>)}
+                            {upcomingBookings.length === 0 && <li>Aucune réservation future.</li>}
+                            {upcomingBookings.map((booking) => <li key={booking.id}>{formatBookingLabel(booking)}</li>)}
                         </ul>
                     </div>
                     <div>
                         <h3>Passées</h3>
                         <ul className={styles.list}>
-                            {pastBookings.map((booking) => <li key={booking}>{booking}</li>)}
+                            {previousBookings.length === 0 && <li>Aucune réservation passée.</li>}
+                            {previousBookings.map((booking) => <li key={booking.id}>{formatBookingLabel(booking)}</li>)}
                         </ul>
                     </div>
                 </div>

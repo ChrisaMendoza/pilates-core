@@ -3,6 +3,8 @@ import styles from './PlanningPage.module.css';
 import studioHero from '../assets/studio-hero.png';
 import { listEvents } from '../api/events';
 import type { Event } from '../types/models';
+import { useAuth } from '../auth/AuthContext';
+import { addBookingForUser, BOOKINGS_UPDATED_EVENT, getBookingsForUser } from '../storage/bookings';
 
 interface Session {
     id: string;
@@ -62,6 +64,7 @@ const generateFallbackMockData = (): Session[] => {
 };
 
 export default function PlanningPage() {
+    const { account } = useAuth();
     const today = new Date();
     const [sessions, setSessions] = useState<Session[]>([]);
     const [loading, setLoading] = useState(true);
@@ -72,6 +75,8 @@ export default function PlanningPage() {
     const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
     const [isInstructorDropdownOpen, setIsInstructorDropdownOpen] = useState(false);
     const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
+    const [bookingMessage, setBookingMessage] = useState<string | null>(null);
+    const [bookedSessionKeys, setBookedSessionKeys] = useState<Set<string>>(new Set());
 
     const dateListRef = useRef<HTMLDivElement>(null);
 
@@ -113,6 +118,22 @@ export default function PlanningPage() {
         fetchEvents();
     }, []);
 
+    useEffect(() => {
+        const loadBookings = () => {
+            if (!account?.login) {
+                setBookedSessionKeys(new Set());
+                return;
+            }
+
+            const keys = getBookingsForUser(account.login).map((booking) => `${booking.eventId}:${booking.date}:${booking.time}`);
+            setBookedSessionKeys(new Set(keys));
+        };
+
+        loadBookings();
+        window.addEventListener(BOOKINGS_UPDATED_EVENT, loadBookings);
+        return () => window.removeEventListener(BOOKINGS_UPDATED_EVENT, loadBookings);
+    }, [account?.login]);
+
     // Generate next 14 days
     const dates = useMemo(() => {
         const result = [];
@@ -150,6 +171,25 @@ export default function PlanningPage() {
 
     const handleDateClick = (iso: string) => {
         setSelectedDate(iso);
+    };
+
+    const handleBooking = (session: Session) => {
+        if (!account?.login) {
+            setBookingMessage('Veuillez vous inscrire ou vous connecter avant de réserver une séance.');
+            return;
+        }
+
+        addBookingForUser({
+            userLogin: account.login,
+            eventId: session.id,
+            sessionTitle: session.title,
+            instructor: session.instructor,
+            date: session.date,
+            time: session.time,
+        });
+
+        setBookedSessionKeys((prev) => new Set(prev).add(`${session.id}:${session.date}:${session.time}`));
+        setBookingMessage('Vous êtes inscrit(e) à la séance.');
     };
 
     // Close dropdowns when clicking outside
@@ -321,9 +361,13 @@ export default function PlanningPage() {
                                     {session.type}
                                 </div>
                                 {!session.isPast && (
-                                    <a href="#" className={styles.bookButton} onClick={(e) => e.preventDefault()}>
-                                        S'inscrire
-                                    </a>
+                                    <button
+                                        type="button"
+                                        className={styles.bookButton}
+                                        onClick={() => handleBooking(session)}
+                                    >
+                                        {bookedSessionKeys.has(`${session.id}:${session.date}:${session.time}`) ? 'Inscrit(e)' : "S'inscrire"}
+                                    </button>
                                 )}
                             </div>
                         ))
@@ -334,6 +378,15 @@ export default function PlanningPage() {
                     )}
                 </div>
             </section>
+
+            {bookingMessage && (
+                <div className={styles.modalOverlay} role="presentation" onClick={() => setBookingMessage(null)}>
+                    <div className={styles.modal} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+                        <p>{bookingMessage}</p>
+                        <button type="button" className={styles.modalButton} onClick={() => setBookingMessage(null)}>OK</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
