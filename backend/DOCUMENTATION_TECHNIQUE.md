@@ -1,128 +1,156 @@
-# Détail des "Programmes" (Fichiers) du Backend
+# Documentation Technique Détaillée - CORE Pilates
 
-Ce document détaille chaque composant clé de ton backend avec son emplacement exact.
-
-> **Note :** Tous les chemins sont relatifs au dossier racine du backend (`backend/src/main/java/com/pilates/booking/`).
-
----
-
-## 1. Gestion des Utilisateurs (User Management)
-Module de gestion des comptes, inscription et sécurité.
-
-### 📂 Dossier : `domain/`
-*   **`User.java`**
-    *   *Chemin* : `domain/User.java`
-    *   *Rôle* : L'objet représentant un utilisateur en BDD (table `jhi_user`). Contient email, nom, mot de passe hashé.
-
-### 📂 Dossier : `web/rest/`
-*   **`UserResource.java`**
-    *   *Chemin* : `web/rest/UserResource.java`
-    *   *Rôle* : API CRUD pour l'administrateur (créer, modifier, supprimer des utilisateurs).
-*   **`AccountResource.java`**
-    *   *Chemin* : `web/rest/AccountResource.java`
-    *   *Rôle* : API pour l'utilisateur connecté (s'inscrire `register`, voir son profil `account`, changer de mot de passe).
-
-### 📂 Dossier : `service/`
-*   **`UserService.java`**
-    *   *Chemin* : `service/UserService.java`
-    *   *Rôle* : Logique complexe (activation de compte, envoi d'email, gestion cache).
-
-### 📂 Dossier : `repository/`
-*   **`UserRepository.java`**
-    *   *Chemin* : `repository/UserRepository.java`
-    *   *Rôle* : Requêtes SQL R2DBC. Ex: `findOneByEmail`.
+## 🎯 Objectif
+Ce document est destiné aux développeurs. Il plonge dans le code source, explique les patterns utilisés et fournit des exemples concrets pour comprendre la puissance de la stack **Réactive**.
 
 ---
 
-## 2. Gestion des Événements / Cours (Event Management)
-Le cœur de l'application : le planning.
+## 1. 📂 Structure du Code (Où chercher ?)
 
-### 📂 Dossier : `domain/`
-*   **`Event.java`**
-    *   *Chemin* : `domain/Event.java`
-    *   *Rôle* : L'objet "Cours" planifié (date, coach, capacité).
+Tous le code source Java se trouve dans : `src/main/java/com/pilates/booking/`
 
-### 📂 Dossier : `web/rest/`
-*   **`EventResource.java`**
-    *   *Chemin* : `web/rest/EventResource.java`
-    *   *Rôle* : API pour afficher le planning et gérer les événements.
-
-### 📂 Dossier : `service/`
-*   **`EventService.java`**
-    *   *Chemin* : `service/EventService.java` (Interface)
-    *   *Chemin* : `service/impl/EventServiceImpl.java` (Implémentation - à vérifier dans le dossier `impl`)
-    *   *Rôle* : Règles métier liées aux cours.
-
-### 📂 Dossier : `repository/`
-*   **`EventRepository.java`**
-    *   *Chemin* : `repository/EventRepository.java`
-    *   *Rôle* : Requêtes pour trouver les cours (par studio, date, etc.).
+| Package | Contenu | Exemple de fichier |
+| :--- | :--- | :--- |
+| `config` | Configuration de Spring (BDD, Sécurité, WebFlux). | `SecurityConfiguration.java` |
+| `domain` | Les Entités JPA (Tables BDD). | `User.java`, `Event.java` |
+| `repository` | Interfaces d'accès aux données (R2DBC). | `UserRepository.java` |
+| `service` | Logique Métier. | `UserService.java` |
+| `web.rest` | Controllers API (Endpoints HTTP). | `UserResource.java` |
+| `security` | Gestion de l'authentification. | `DomainUserDetailsService.java` |
 
 ---
 
-## 3. Gestion des Réservations (Booking Management)
-Lien entre `User` et `Event`.
+## 2. 💻 Exemples de Code & Patterns (La "Performance")
 
-### 📂 Dossier : `domain/`
-*   **`Booking.java`**
-    *   *Chemin* : `domain/Booking.java`
-    *   *Rôle* : L'objet réservation avec son statut (`CONFIRMED`, `CANCELLED`).
+L'application utilise le paradigme **Réactif**. Voici comment lire et comprendre le code.
 
-### 📂 Dossier : `web/rest/`
-*   **`BookingResource.java`**
-    *   *Chemin* : `web/rest/BookingResource.java`
-    *   *Rôle* : API pour réserver/annuler un cours.
+### A. Le Repository Réactif (Spring Data R2DBC)
+Au lieu de retourner une `List<User>`, on retourne un `Flux<User>` (Flux de données) ou un `Mono<User>` (0 ou 1 donnée).
 
-### 📂 Dossier : `service/`
-*   **`BookingService.java`**
-    *   *Chemin* : `service/BookingService.java`
-    *   *Rôle* : Vérifie la disponibilité et crée la réservation.
+**Fichier :** `repository/UserRepository.java`
 
-### 📂 Dossier : `repository/`
-*   **`BookingRepository.java`**
-    *   *Chemin* : `repository/BookingRepository.java`
-    *   *Rôle* : Accès BDD pour les réservations.
+```java
+@Repository
+public interface UserRepository extends ReactiveCrudRepository<User, Long> {
+
+    // 🚀 Performance :
+    // Cette méthode ne bloque pas. Elle retourne une "Promesse" (Mono)
+    // que la donnée arrivera plus tard.
+    Mono<User> findOneByEmailIgnoreCase(String email);
+
+    Mono<User> findOneByLogin(String login);
+    
+    // Flux = Stream de plusieurs éléments
+    Flux<User> findAllByActivatedIsTrue();
+}
+```
+
+### B. Le Service Réactif (Chaining d'opérations)
+Dans le monde réactif, on "enchaîne" les opérations comme un pipeline de traitement.
+
+**Exemple : Créer une réservation (Logique simplifiée)**
+
+```java
+public Mono<BookingDTO> createBooking(BookingDTO bookingDTO) {
+    return bookingRepository.findByEventId(bookingDTO.getEventId())
+        // 1. Compter les inscrits existants
+        .count()
+        // 2. Vérifier la capacité (Logique Métier)
+        .flatMap(currentCount -> {
+            if (currentCount >= 20) {
+                return Mono.error(new EventFullException()); // ❌ Erreur si plein
+            }
+            // 3. Sinon, on sauvegarde
+            Booking booking = bookingMapper.toEntity(bookingDTO);
+            return bookingRepository.save(booking);
+        })
+        // 4. On convertit le résultat en DTO pour le frontend
+        .map(bookingMapper::toDto);
+}
+```
+
+> **💡 Pourquoi c'est performant ?**
+> Entre l'étape 1 et 2, si la base de données met 50ms à répondre, le thread CPU est libéré pour traiter la requête d'un autre utilisateur. Aucun temps d'attente CPU.
+
+### C. Le Controller REST (Endpoint)
+Les controllers reçoivent et retournent des types réactifs.
+
+**Fichier :** `web/rest/UserResource.java`
+
+```java
+@GetMapping("/users/{login}")
+public Mono<ResponseEntity<UserDTO>> getUser(@PathVariable String login) {
+    return userService.getUserWithAuthoritiesByLogin(login) // Retourne Mono<User>
+        .map(UserDTO::new)  // Transforme User -> UserDTO
+        .map(userDTO -> ResponseEntity.ok().body(userDTO)) // Enveloppe dans HTTP 200 OK
+        .defaultIfEmpty(ResponseEntity.notFound().build()); // Si vide -> HTTP 404 Not Found
+}
+```
 
 ---
 
-## 4. Données de Référence
-Les objets statiques ou de configuration.
+## 3. 🛡 Gestion des Erreurs (Global Exception Handling)
 
-### 📂 Dossier : `domain/`
-*   **`Studio.java`** : `domain/Studio.java` (Le lieu).
-*   **`ClassType.java`** : `domain/ClassType.java` ( Le type de cours).
-*   **`Pack.java`** : `domain/Pack.java` (Les forfaits de crédits).
+Nous ne faisons pas de `try-catch` partout. Nous utilisons un **`@ControllerAdvice`** qui intercepte toutes les erreurs et renvoie une réponse JSON propre.
 
-### 📂 Dossier : `web/rest/`
-*   **`StudioResource.java`**, **`ClassTypeResource.java`**, **`PackResource.java`**.
-    *   *Rôle* : APIs pour gérer ces données (CRUD).
+**Exemple de réponse d'erreur (JSON) :**
+```json
+{
+  "type": "https://www.jhipster.tech/problem/email-already-used",
+  "title": "Email already used",
+  "status": 409,
+  "detail": "Cet email est déjà associé à un compte."
+}
+```
 
----
-
-## 5. Configuration & Infrastructure
-Les fichiers qui font tourner le tout.
-
-### 📂 Dossier : `security/` (`src/main/java/com/pilates/booking/security/`)
-*   **`SecurityJwtConfiguration.java`** (Probable sur JHipster récent) ou **`SecurityConfiguration.java`**
-    *   *Rôle* : Configure les accès (qui a le droit de faire quoi) et le token JWT.
-
-### 📂 Dossier : `config/` (`src/main/java/com/pilates/booking/config/`)
-*   **`DatabaseConfiguration.java`**
-    *   *Rôle* : Configure la connexion PostgreSQL Reactive (R2DBC).
-*   **`WebConfigurer.java`**
-    *   *Rôle* : Config Cors et WebFlux.
-
-### 📂 Dossier : `resources/config/liquibase/` (`src/main/resources/config/liquibase/`)
-*   **`master.xml`**
-    *   *Rôle* : Le chef d'orchestre de la base de données. Liste tous les changements à appliquer.
-*   **`changelog/`** (Dossier)
-    *   *Contenu* : Les fichiers XML individuels (ex: `..._added_entity_Event.xml`) qui créent les tables.
+**Code Java (`web/rest/errors/ExceptionTranslator.java`) :**
+```java
+@ExceptionHandler
+public Mono<ResponseEntity<Problem>> handleEmailAlreadyUsedException(EmailAlreadyUsedException ex, ServerWebExchange request) {
+    Problem problem = Problem.builder()
+        .withStatus(Status.CONFLICT) // HTTP 409
+        .withTitle("Email already used")
+        .build();
+    return create(ex, problem, request);
+}
+```
 
 ---
 
-### Mémo pour trouver facilement :
+## 4. 🗄 Modèle de Données (Schema)
 
-*   Si tu cherches une **API** (URL) -> `web/rest/`
-*   Si tu cherches la **Logique** -> `service/`
-*   Si tu cherches la **Base de Données** (SQL) -> `repository/`
-*   Si tu cherches les **Objets** -> `domain/`
+Les entités suivent une structure relationnelle classique mais optimisée.
+
+### Entité User (`domain/User.java`)
+*   `id` (PK)
+*   `login` (Unique, Indexé pour la rapidité de recherche)
+*   `password_hash` (Jamais retourné au frontend)
+*   `first_name`, `last_name`, `email`
+*   `activated` (Boolean)
+
+### Entité Event (`domain/Event.java`)
+*   `id` (PK)
+*   `start_at` (Timestamp)
+*   `end_at` (Timestamp)
+*   `coach_name`
+*   **Relations** : Lié à `Studio` et `ClassType`.
+
+---
+
+## 5. 🚀 Meilleures Pratiques Appliquées
+
+1.  **DTO Pattern** : Nous n'exposons jamais les entités (`User`, `Event`) directement au frontend. Nous utilisons des **DTO** (Data Transfer Objects) pour filtrer les données (ex: ne jamais envoyer le mot de passe).
+2.  **Stateless Security** : Pas de session serveur. Tout passe par le Token JWT.
+3.  **Liquibase** : Tout changement de BDD est versionné.
+4.  **Tests d'Intégration** : Le projet contient des tests qui lancent un vrai contexte Spring pour valider que tout fonctionne ensemble.
+
+---
+
+## 🧠 Mémo Réactif
+
+Si vous voyez ces mots-clés dans le code :
+
+*   **`Mono<T>`** : "Je te promets **0 ou 1** résultat (ex: chercher un utilisateur par ID)."
+*   **`Flux<T>`** : "Je te promets **plusieurs** résultats (ex: liste des cours)."
+*   **`.map()`** : "Transforme la donnée (ex: User -> UserDTO)."
+*   **`.flatMap()`** : "Enchaîne avec une autre opération asynchrone (ex: Chercher User -> Puis chercher ses Réservations)."

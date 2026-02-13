@@ -1,100 +1,92 @@
-# Fiche Technique & Explication Backend - Projet Pilates
+# Documentation Générale du Backend - CORE Pilates
 
-Ce document est conçu pour te donner toutes les clés pour présenter le backend de ton projet, même si ton expertise est principalement frontend ou si le code a été généré.
+## 📚 Introduction
 
-## 1. Carte d'Identité Technique (La "Tech Stack")
-
-C'est la première chose que le prof va regarder. Voici les technologies utilisées :
-
-*   **Langage** : Java (vers. 17). Standard robuste de l'industrie.
-*   **Framework Principal** : **Spring Boot** (vers. 3.4.5). Le framework Java n°1 pour le web.
-*   **Type d'Architecture** : **Monolithe Modulaire**. Le frontend (Angular) et le backend sont dans le même projet pour simplifier le déploiement, mais le backend est bien séparé logiquement.
-*   **Particularité Majeure** : **Stack Réactive (WebFlux)**. Contrairement aux applis classiques "bloquantes", ton backend est asynchrone et non-bloquant. C'est très moderne et performant pour gérer beaucoup de connexions simultanées.
-*   **Base de Données** : **PostgreSQL**. Une base de données relationnelle puissante et open-source.
-*   **Accès aux Données** : **Spring Data R2DBC**. C'est la version "Réactive" de JPA/Hibernate. Elle permet de parler à la base de données de manière asynchrone.
-*   **Gestion de Version BDD** : **Liquibase**. Permet de suivre les modifications de la structure de la base de données (ajout de tables, colonnes) comme du code.
-*   **Générateur** : **JHipster** (vers. 8.11.0). Outil qui génère une structure de projet avec les meilleures pratiques de l'industrie (sécurité, tests, configuration).
+Ce document présente l'architecture et les choix techniques du backend de l'application CORE Pilates. Il est conçu pour expliquer **pourquoi** et **comment** nous avons construit une application performante, scalable et sécurisée.
 
 ---
 
-## 2. Architecture Logicielle (Comment ça marche ?)
+## 1. 🏗 Architecture et Stack Technique
 
-Ton backend est organisé en **couches**. Chaque couche a une responsabilité unique.
+### Philosophie du Projet
+Le backend est construit selon une architecture **Monolithe Modulaire** basée sur **Spring Boot**. Nous avons choisi une approche **Réactive** (Reactive Programming) pour garantir une haute performance sous forte charge.
+
+### La Stack Technique ("Tech Stack")
+
+| Composant | Technologie | Version | Pourquoi ce choix ? |
+| :--- | :--- | :--- | :--- |
+| **Langage** | Java | 17 LTS | Robustesse, typage fort, standard industriel. |
+| **Framework** | Spring Boot | 3.4.5 | Facilité de configuration, écosystème riche. |
+| **Paradigme** | **WebFlux / Reactor** | - | **Performance**. Gestion non-bloquante des requêtes (Asynchrone). |
+| **Base de Données** | PostgreSQL | 16+ | Fiabilité, relationnel, support JSON. |
+| **Accès Données** | Spring Data R2DBC | - | Driver **réactif** pour PostgreSQL (ne bloque pas les threads). |
+| **Sécurité** | Spring Security | - | Authentification JWT Stateless (Sans état). |
+| **Migrations** | Liquibase | - | Versionning du schéma de base de données (Infrastructure as Code). |
+| **Build** | Maven | - | Gestion des dépendances standard Java. |
+
+---
+
+## 2. ⚡️ Pourquoi une Architecture "Réactive" ?
+
+C'est le point fort de ce projet. Contrairement aux applications Java classiques (Spring MVC) qui utilisent un modèle "1 Thread par Requête", notre backend utilise **Spring WebFlux** (Netty).
+
+### Comparaison :
+*   **Classique (Bloquant)** : Si une requête doit attendre 200ms la base de données, le thread du serveur est bloqué pendant 200ms. Avec 1000 utilisateurs, le serveur s'écroule.
+*   **Réactif (Non-Bloquant - Notre choix)** : Le thread lance la requête BDD et **se libère immédiatement** pour traiter une autre requête client. Quand la BDD répond, un thread reprend le travail.
+
+✅ **Résultat** : Avec peu de ressources (CPU/RAM), on peut gérer des milliers de connexions simultanées (C'est le modèle utilisé par Netflix, Uber, etc.).
+
+---
+
+## 3. 🧩 Organisation du Code (Architecture en Couches)
+
+Le code est structuré pour séparer les responsabilités :
 
 ```mermaid
 graph TD
-    Client[Client (Frontend Angular)] -->|Requête HTTP REST| Controller[Controller / Resource]
-    Controller -->|Appel Méthode| Service[Service Layer]
-    Service -->|Appel Méthode| Repository[Repository Layer]
-    Repository -->|SQL R2DBC| DB[(PostgreSQL Database)]
-
-    subgraph Backend [Backend Spring Boot]
-    Controller
-    Service
-    Repository
-    end
+    Client[Client (Frontend)] -->|JSON / HTTP| Controller[Web / REST Layer]
+    Controller -->|DTO| Service[Service Layer]
+    Service -->|Entity| Repository[Repository Layer]
+    Repository -->|SQL| Database[(PostgreSQL)]
 ```
 
-### Détail des Couches :
-
-1.  **Web / Resource (`com.pilates.booking.web.rest`)**
-    *   **Rôle** : C'est la porte d'entrée. Reçoit les requêtes HTTP (GET, POST, PUT, DELETE) du frontend.
-    *   **Fichiers** : `EventResource.java`, `UserResource.java`.
-    *   **Concept Clé** : Retourne des objets `Mono<T>` (0 ou 1 résultat) ou `Flux<T>` (0 à N résultats). C'est la signature du code Réactif.
-    
-2.  **Service (`com.pilates.booking.service`)**
-    *   **Rôle** : Contient la "Logique Métier". C'est ici qu'on met les règles (ex: vérifier qu'un cours n'est pas plein avant d'inscrire quelqu'un).
-    *   **Fichiers** : `EventService.java` (Interface) et `EventServiceImpl.java` (Implémentation).
-    *   **Note** : Souvent, il fait juste "passe-plat" vers le Repository si la logique est simple.
-
-3.  **Repository (`com.pilates.booking.repository`)**
-    *   **Rôle** : Parle à la base de données. Il contient les méthodes comme `save`, `findAll`, `findById`.
-    *   **Fichiers** : `EventRepository.java`.
-    *   **Technologie** : Utilise Spring Data R2DBC pour générer automatiquement les requêtes SQL.
-
-4.  **Domain (`com.pilates.booking.domain`)**
-    *   **Rôle** : Définit les objets de ton application (les Tables de la BDD).
-    *   **Fichiers** : `Event.java`, `Booking.java`, `User.java`.
-    *   **Annotations** : `@Table` (mappe la classe à une table BDD), `@Id` (clé primaire).
+1.  **Web / REST (`web.rest`)** : Reçoit la requête HTTP. Ne contient **aucune** logique métier. Valide juste les entrées.
+2.  **Service (`service`)** : Le cerveau. Applique les règles métier (ex: "Un utilisateur ne peut pas réserver s'il n'a plus de crédits").
+3.  **Repository (`repository`)** : Le data access. Parle à la base de données.
+4.  **Domain (`domain`)** : Les objets purs (Les tables de la BDD).
 
 ---
 
-## 3. Le Modèle de Données (Tes Entités)
+## 4. 🔄 Workflow de Développement
 
-Voici les objets principaux que tu manipules :
+### A. Gestion de la Base de Données (Liquibase)
+Nous ne modifions jamais la base de données à la main.
+1.  On crée un fichier XML (Changelog) décrivant le changement (ex: `createTable`).
+2.  Au démarrage, l'application applique automatiquement les changements manquants.
+3.  Cela garantit que **Production** et **Développement** sont toujours synchronisés.
 
-*   **User** : L'utilisateur (client ou admin). Contient `email`, `nom`, `prenom`.
-*   **Event** : Un cours planifié (ex: "Pilates Reformer le Lundi à 18h"). A une `capacity` (nb places), `startAt`, `endAt`.
-*   **Booking** : Une réservation. Lie un `User` à un `Event`.
-*   **Studio** : Le lieu physique.
-*   **Pack / Subscription** : Pour gérer les paiements (non visible en détail dans les fichiers analysés mais présent dans le JDL).
-
----
-
-## 4. Points Clés pour la Démo (Ce qu'il faut dire)
-
-Si le prof te pose des questions, voici des réponses qui montrent que tu maîtrises ton sujet :
-
-**Q: Pourquoi avoir utilisé JHipster ?**
-> "Nous voulions une base solide et respectant les standards de l'industrie (Sécurité, Architecture en couches, Tests). JHipster nous a permis de générer cette structure rapidement pour nous concentrer sur la logique métier spécifique au Pilates (les réservations, le planning)."
-
-**Q: C'est quoi "Reactive" / WebFlux ? Pourquoi pas le Spring classique ?**
-> "C'est une architecture non-bloquante. Contrairement au modèle classique où chaque requête bloque un thread du serveur, ici tout est asynchrone. Cela permet de gérer beaucoup plus d'utilisateurs simultanés avec moins de ressources serveur. C'est l'avenir des applications Java haute performance."
-
-**Q: Comment gérez-vous les mises à jour de la base de données ?**
-> "Nous utilisons **Liquibase**. C'est un outil de 'version control' pour la base de données. Chaque modification de table est écrite dans un fichier XML/Changelog, ce qui permet à toute l'équipe d'avoir la même version de la base, et de déployer en production sans risque."
-
-**Q: Comment est gérée la sécurité ?**
-> "Via Spring Security. L'architecture est 'Stateless' (sans état), utilisant probablement des tokens JWT (JSON Web Tokens) pour l'authentification. Le frontend envoie le token à chaque requête."
-
-## 5. Où trouver le code ?
-
-Si tu dois montrer du code, va ici :
-*   **Les API (Controllers)** : `src/main/java/com/pilates/booking/web/rest/` (ex: `EventResource.java`)
-*   **Les Objets (Domain)** : `src/main/java/com/pilates/booking/domain/`
-*   **La Config BDD** : `src/main/resources/config/liquibase/master.xml`
+### B. Sécurité (JWT)
+L'API est "Stateless" (Sans état).
+1.  L'utilisateur se connecte (`/api/authenticate`).
+2.  Le serveur vérifie le mot de passe et génère un **Token JWT** signé cryptographiquement.
+3.  Le frontend stocke ce token et l'envoie dans le header `Authorization: Bearer <token>` de chaque requête suivante.
+4.  Le serveur vérifie la signature du token pour autoriser l'accès.
 
 ---
 
-**Résumé en une phrase pour l'intro :**
-"Notre backend est une application **Spring Boot Réactive** générée avec **JHipster**, utilisant une base **PostgreSQL** et une architecture en couches claire pour garantir performance et maintenabilité."
+## 5. 🗣 Points Clés pour la Démo
+
+Si on vous demande de "vendre" la partie technique :
+
+1.  **Performance** : "Nous avons choisi l'approche Réactive avec Spring WebFlux et R2DBC. Cela nous permet de gérer une charge élevée avec une empreinte mémoire minimale, en évitant le blocage des threads I/O."
+2.  **Robustesse** : "Le typage fort de Java et l'architecture en couches stricte rendent le code maintenable et testable."
+3.  **Modernité** : "L'utilisation de PostgreSQL avec R2DBC montre une maîtrise des standards modernes d'accès aux données en Java."
+4.  **Sécurité** : "L'utilisation de JWT permet une architecture totalement découplée entre le frontend et le backend, facilitant le passage à l'échelle (Horizontal Scaling)."
+
+---
+
+## 6. Commandes Utiles
+
+*   **Lancer l'app** : `./mvnw spring-boot:run`
+*   **Lancer les tests** : `./mvnw verify`
+*   **Nettoyer le projet** : `./mvnw clean`

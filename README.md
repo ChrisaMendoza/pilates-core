@@ -1,69 +1,128 @@
-# CORE Pilates - Booking System
+# CORE Pilates - Système de Réservation
 
-A premium, state-of-the-art booking management platform for Pilates studios. This project is a monorepo containing both the reactive Spring Boot backend and the modern React frontend.
-
-## 🏗 Project Architecture
-
-This project follows a **Monorepo** structure:
-
-- **/frontend**: A high-performance React application powered by Vite and TypeScript.
-- **/backend**: A reactive Spring Boot application utilizing R2DBC and PostgreSQL, built with the JHipster framework.
+Une plateforme de gestion de réservation premium et moderne pour les studios de Pilates. Ce projet est un **monorepo** contenant à la fois le backend réactif Spring Boot et le frontend moderne en React.
 
 ---
 
-## 🚀 Tech Stack
+## 🏗 Architecture du Projet
+
+Ce projet suit une structure **Monorepo** :
+
+- **/frontend** : Une application React haute performance propulsée par Vite et TypeScript.
+- **/backend** : Une application Spring Boot réactive utilisant R2DBC et PostgreSQL, construite avec le framework JHipster.
+
+---
+
+## 🚀 Stack Technique
 
 ### Frontend
-- **Framework**: [React 19](https://react.dev/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Routing**: [React Router 7](https://reactrouter.com/)
-- **API Client**: [Axios](https://axios-http.com/)
+- **Framework** : [React 19](https://react.dev/)
+- **Outil de Build** : [Vite](https://vitejs.dev/)
+- **Langage** : [TypeScript](https://www.typescriptlang.org/)
+- **Routage** : [React Router 7](https://reactrouter.com/)
+- **Client API** : [Axios](https://axios-http.com/)
 
 ### Backend
-- **Framework**: [Spring Boot 3.4.5](https://spring.io/projects/spring-boot)
-- **Infrastructure**: [JHipster 8.11.0](https://www.jhipster.tech/)
-- **Persistence**: PostgreSQL with [Spring Data R2DBC](https://spring.io/projects/spring-data-r2dbc) (Reactive)
-- **Database Migrations**: [Liquibase](https://www.liquibase.org/)
-- **Build Tool**: [Maven](https://maven.apache.org/)
-- **Java Version**: 17
+- **Framework** : [Spring Boot 3.4.5](https://spring.io/projects/spring-boot)
+- **Infrastructure** : [JHipster 8.11.0](https://www.jhipster.tech/)
+- **Persistance** : PostgreSQL avec [Spring Data R2DBC](https://spring.io/projects/spring-data-r2dbc) (Réactif)
+- **Migrations BDD** : [Liquibase](https://www.liquibase.org/)
+- **Outil de Build** : [Maven](https://maven.apache.org/)
+- **Version Java** : 17
 
 ---
 
-## 🛠 Getting Started
+## 🛠 Guide de Démarrage
 
-### Quick Start (macOS)
+### Prérequis
+- **Node.js** : v22.15.0 ou supérieur
+- **Java** : JDK 17
+- **Docker** : Recommandé pour lancer la base de données PostgreSQL rapidement.
+
+---
+
+### 1. Démarrage Rapide (Script)
+
+#### 🍎 macOS / 🐧 Linux
 L'option la plus simple pour lancer le frontend et le backend simultanément :
 ```bash
 ./start-all.sh
 ```
-*Cela ouvrira deux fenêtres de terminal séparées.*
+*Cela ouvrira deux fenêtres de terminal séparées pour le back et le front.*
 
-### Configuration Manuelle
-
-#### Prérequis
-- **Node.js**: v22.15.0 ou supérieur
-- **Java**: JDK 17
-- **Docker**: Pour la base de données PostgreSQL (optionnel)
-
-#### Lancement Backend
-1. `cd backend`
-2. `./mvnw`
-
-#### Lancement Frontend
-1. `cd frontend`
-2. `npm install` (la première fois)
-3. `npm run dev`
+#### 🪟 Windows
+Il n'y a pas de script automatique, veuillez suivre la méthode manuelle ci-dessous.
 
 ---
 
-## 🎨 Features
-- **Premium UI**: Modern, glassmorphism-inspired design for a premium user experience.
-- **Booking Management**: Seamless scheduling for Pilates sessions.
-- **Reactive Backend**: High-performance, non-blocking API architecture.
-- **User Authentication**: Secure role-based access control.
+### 2. Démarrage Manuel
+
+#### Étape 1 : Lancer la Base de Données (Optionnel si vous avez une BDD locale)
+Si vous utilisez Docker :
+```bash
+cd backend
+docker-compose -f src/main/docker/postgresql.yml up -d
+```
+
+#### Étape 2 : Lancer le Backend
+
+**🍎 macOS / 🐧 Linux**
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+**🪟 Windows (Command Prompt)**
+```cmd
+cd backend
+mvnw spring-boot:run
+```
+*Ou si vous n'avez pas mvnw configuré :*
+```cmd
+mvn spring-boot:run
+```
+
+#### Étape 3 : Lancer le Frontend
+
+**🍎 macOS / 🐧 Linux**
+```bash
+cd frontend
+npm install  # (seulement la première fois)
+npm run dev
+```
+
+**🪟 Windows (Powershell / cmd)**
+```cmd
+cd frontend
+npm install
+npm run dev
+```
 
 ---
 
-## 📝 License
-This project is private and for internal use by CORE Pilates.
+## 👤 Comptes de Test
+
+Une fois l'application lancée, vous pouvez vous connecter avec les identifiants suivants :
+
+| Rôle | Login | Mot de passe |
+|------|-------|--------------|
+| **Admin** | `admin` | `admin` |
+| **Utilisateur** | `user` | `user` |
+
+> **Note** : L'inscription est également fonctionnelle pour créer de nouveaux comptes utilisateurs.
+
+---
+
+## 🎨 Fonctionnalités Principales
+
+- **Interface Premium** : Design soigné inspiré du glassmorphism pour une expérience utilisateur haut de gamme.
+- **Gestion des Réservations** : Planning interactif, système de crédits, et gestion des annulations (règle des 24h).
+- **Backend Réactif** : Architecture API non-bloquante pour des performances optimales.
+- **Authentification Sécurisée** : Gestion des rôles (Admin/User) et protection des endpoints.
+- **Pages Légales** : CGV, Mentions Légales et Politique de Cookies intégrées.
+
+---
+
+## 📝 Licence
+
+Ce projet est privé et destiné à un usage interne pour CORE Pilates.
