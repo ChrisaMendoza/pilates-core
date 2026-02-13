@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { offerCatalog } from '../data/offers';
 import { getPurchasesForUser } from '../storage/purchases';
-import { BOOKINGS_UPDATED_EVENT, getBookingsForUser, type StoredBooking } from '../storage/bookings';
+import { BOOKINGS_UPDATED_EVENT, getBookingsForUser, type StoredBooking } from '../storage/booking';
 import styles from './ProfilePage.module.css';
 
 type ProfileData = {

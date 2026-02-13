@@ -4,7 +4,7 @@ import studioHero from '../assets/studio-hero.png';
 import { listEvents } from '../api/events';
 import type { Event } from '../types/models';
 import { useAuth } from '../auth/AuthContext';
-import { addBookingForUser, BOOKINGS_UPDATED_EVENT, getBookingsForUser } from '../storage/bookings';
+import { addBookingForUser, BOOKINGS_UPDATED_EVENT, getBookingsForUser } from '../storage/booking';
 
 interface Session {
     id: string;
