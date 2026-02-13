@@ -29,7 +29,7 @@ const initialFormData: RegisterFormData = {
 function getErrorMessage(error: any): string {
     if (axios.isAxiosError(error) && error.response?.data) {
         const data = error.response.data;
-        if (data.message === 'error.emailAlreadyUsed' || data.message === 'error.emailexists') {
+        if (data.message === 'error.emailAlreadyUsed' || data.message === 'error.emailexists' || data.message === 'error.userexists' || data.message === 'error.loginAlreadyUsed') {
             return "Cet email est déjà associé à un compte.";
         }
         if (data.message === 'error.phoneAlreadyUsed' || data.message === 'error.phoneexists') {

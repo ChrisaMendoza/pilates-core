@@ -116,11 +116,41 @@
     margin-top: var(--spacing-xs);
 }
 
-.columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-lg);
-    margin-top: var(--spacing-sm);
+.reservationsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-md);
+}
+
+.reservationsSection h3 {
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.1rem;
+    color: var(--color-dark);
+}
+
+.list li.bookingItem {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.cancelButton {
+    color: #e53e3e;
+    /* Red color */
+    background: none;
+    border: 1px solid #e53e3e;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cancelButton:hover {
+    background: #e53e3e10;
 }
 
 .primaryButton,
@@ -149,7 +179,6 @@
         align-items: flex-start;
     }
 
-    .columns,
     .formGrid {
         grid-template-columns: 1fr;
     }

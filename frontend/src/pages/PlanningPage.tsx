@@ -5,6 +5,8 @@ import { listEvents } from '../api/events';
 import type { Event } from '../types/models';
 import { useAuth } from '../auth/AuthContext';
 import { addBookingForUser, BOOKINGS_UPDATED_EVENT, getBookingsForUser } from '../storage/booking';
+import { getPurchasesForUser } from '../storage/purchases';
+import { offerCatalog } from '../data/offers';
 
 interface Session {
     id: string;
@@ -173,9 +175,27 @@ export default function PlanningPage() {
         setSelectedDate(iso);
     };
 
+
     const handleBooking = (session: Session) => {
         if (!account?.login) {
             setBookingMessage('Veuillez vous inscrire ou vous connecter avant de réserver une séance.');
+            return;
+        }
+
+        // 1. Calculate available credits
+        const purchases = getPurchasesForUser(account.login);
+        const totalCredits = purchases.reduce((acc, purchase) => {
+            const offer = offerCatalog[purchase.planId];
+            return acc + (offer ? parseInt(offer.amount) : 0);
+        }, 0);
+
+        // 2. Calculate used credits (1 session = 14 credits)
+        const bookings = getBookingsForUser(account.login);
+        const usedCredits = bookings.length * 14;
+
+        // 3. Check balance
+        if (totalCredits - usedCredits < 14) {
+            setBookingMessage("Vous n'avez pas assez de crédits pour réserver cette séance. Veuillez acheter un pack ou un abonnement.");
             return;
         }
 

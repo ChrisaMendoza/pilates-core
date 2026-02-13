@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { offerCatalog } from '../data/offers';
 import { getPurchasesForUser } from '../storage/purchases';
-import { BOOKINGS_UPDATED_EVENT, getBookingsForUser, type StoredBooking } from '../storage/booking';
+import { BOOKINGS_UPDATED_EVENT, getBookingsForUser, removeBookingForUser, type StoredBooking } from '../storage/booking';
 import styles from './ProfilePage.module.css';
 
 type ProfileData = {
@@ -74,6 +74,26 @@ export default function ProfilePage() {
 
     const onChange = (field: keyof ProfileData, value: string) => {
         setProfileData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleCancelBooking = (booking: StoredBooking) => {
+        if (!account?.login) return;
+
+        const bookingDate = new Date(`${booking.date}T${booking.time}`);
+        const now = new Date();
+        const diffMs = bookingDate.getTime() - now.getTime();
+        const diffHours = diffMs / (1000 * 60 * 60);
+
+        if (diffHours < 24) {
+            alert("Annulation hors délais : Cette séance a lieu dans moins de 24 heures. Si vous l'annulez maintenant, elle sera décomptée de votre forfait ou facturée.");
+            return;
+        }
+
+        if (confirm("Voulez-vous vraiment annuler cette réservation ?")) {
+            removeBookingForUser(booking.id, account.login);
+            // Force refresh
+            window.dispatchEvent(new CustomEvent(BOOKINGS_UPDATED_EVENT));
+        }
     };
 
     return (
@@ -150,15 +170,27 @@ export default function ProfilePage() {
 
             <section className={styles.sectionCard}>
                 <h2>Mes réservations</h2>
-                <div className={styles.columns}>
-                    <div>
-                        <h3>Futures</h3>
+                <div className={styles.reservationsContainer}>
+                    <div className={styles.reservationsSection}>
+                        <h3>A venir</h3>
                         <ul className={styles.list}>
                             {upcomingBookings.length === 0 && <li>Aucune réservation future.</li>}
-                            {upcomingBookings.map((booking) => <li key={booking.id}>{formatBookingLabel(booking)}</li>)}
+                            {upcomingBookings.map((booking) => (
+                                <li key={booking.id} className={styles.bookingItem}>
+                                    <span>{formatBookingLabel(booking)}</span>
+                                    <button
+                                        type="button"
+                                        className={styles.cancelButton}
+                                        onClick={() => handleCancelBooking(booking)}
+                                    >
+                                        Annuler
+                                    </button>
+                                </li>
+                            ))}
                         </ul>
                     </div>
-                    <div>
+
+                    <div className={styles.reservationsSection}>
                         <h3>Passées</h3>
                         <ul className={styles.list}>
                             {previousBookings.length === 0 && <li>Aucune réservation passée.</li>}
