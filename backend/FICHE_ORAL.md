@@ -325,3 +325,27 @@ Si on te demande : *"Expliquez-moi comment le Frontend et le Backend communiquen
 *   **Routes API** : `backend/src/main/java/com/pilates/booking/web/rest/`
 *   **Appels Frontend** : `frontend/src/api/` (ex: `bookings.ts`, `auth.ts`)
 *   **Pages Frontend** : `frontend/src/pages/` (ex: `PlanningPage.tsx`)
+
+### 👥 Où voir les utilisateurs créés ?
+
+**Question probable :** *"Montrez-moi les utilisateurs que vous avez créés"*
+
+**Réponse :**
+> "Les utilisateurs sont stockés dans la table PostgreSQL `jhi_user`. Je peux vous les montrer de 3 façons :"
+
+1.  **Via Swagger UI** (Le plus simple pour la démo) :
+    *   Ouvre `http://localhost:8080/webflux/swagger-ui.html`
+    *   Va sur `user-resource` → `GET /api/admin/users`
+    *   Clique sur "Try it out" → "Execute"
+    *   Tu verras la liste JSON de tous les users (avec leur login, email, rôles)
+
+2.  **Via un client PostgreSQL** (Si tu as DBeaver, pgAdmin, etc.) :
+    *   Connexion : `localhost:5432`, database: `pilatesbooking`, user: `pilatesbooking`, password: (vide)
+    *   Requête SQL : `SELECT id, login, email, activated FROM jhi_user;`
+
+3.  **Via Docker** (En ligne de commande) :
+    ```bash
+    docker exec -it pilates-core-postgresql-1 psql -U pilatesbooking -d pilatesbooking -c "SELECT id, login, email, activated FROM jhi_user;"
+    ```
+
+**Astuce pour l'oral :** Prépare Swagger UI ouvert sur cette route avant la démo, c'est le plus visuel et professionnel.

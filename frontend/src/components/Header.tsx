@@ -1,11 +1,17 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import styles from './Header.module.css';
 
 export default function Header() {
     const { account, signOut } = useAuth();
+    const navigate = useNavigate();
     console.log('Header: Current account state:', account);
     const location = useLocation();
+
+    const handleLogout = () => {
+        signOut();
+        navigate('/login');
+    };
 
     const isActive = (path: string) => location.pathname === path;
 
@@ -48,7 +54,7 @@ export default function Header() {
                             <Link to="/profile" className={styles.btnOutline}>
                                 Mon compte
                             </Link>
-                            <button onClick={signOut} className={styles.btnSolid}>
+                            <button onClick={handleLogout} className={styles.btnSolid}>
                                 Déconnexion
                             </button>
                         </>
