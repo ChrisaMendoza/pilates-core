@@ -15,6 +15,7 @@ export default function PaymentPage() {
 
     const handlePayment = () => {
         if (!account?.login) {
+            window.alert('Veuillez vous inscrire avant de payer un abonnement ou un pack.');
             navigate('/register');
             return;
         }
