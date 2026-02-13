@@ -16,7 +16,7 @@ const packs: Offer[] = [
     {
         id: 'pack-1',
         name: 'Séance à l’unité',
-        price: '14 crédits',
+        price: '14€',
         cadence: '/1 séance',
         description: 'Idéal pour tester ponctuellement le studio sans engagement.',
         features: ['1 séance = 14 crédits', 'Validité : 7 jours', 'Accès à tous les créneaux standards'],
@@ -25,7 +25,7 @@ const packs: Offer[] = [
     {
         id: 'pack-10',
         name: 'Pack 10 séances',
-        price: '140 crédits',
+        price: '140€',
         cadence: '/10 séances',
         description: 'Le format pratique pour une routine régulière.',
         features: ['Base : 1 séance = 14 crédits', 'Total : 140 crédits', 'Validité : 2 mois'],
@@ -34,7 +34,7 @@ const packs: Offer[] = [
     {
         id: 'pack-20',
         name: 'Pack 20 séances',
-        price: '280 crédits',
+        price: '280€',
         cadence: '/20 séances',
         description: 'Parfait pour accélérer vos résultats semaine après semaine.',
         features: ['Base : 1 séance = 14 crédits', 'Total : 280 crédits', 'Validité : 4 mois'],
@@ -44,7 +44,7 @@ const packs: Offer[] = [
     {
         id: 'pack-40',
         name: 'Pack 40 séances',
-        price: '560 crédits',
+        price: '560€',
         cadence: '/40 séances',
         description: 'Le meilleur choix pour un entraînement intensif et durable.',
         features: ['Base : 1 séance = 14 crédits', 'Total : 560 crédits', 'Validité : 8 mois'],
@@ -56,7 +56,7 @@ const subscriptions: Offer[] = [
     {
         id: 'abonnement-mensuel',
         name: 'Abonnement Mensuel',
-        price: '120 crédits',
+        price: '120€',
         cadence: '/mois',
         description: 'Renouvellement mensuel automatique pour garder votre rythme.',
         features: ['Validité : 30 jours', 'Rechargement automatique chaque mois', 'Priorité sur liste d’attente'],
@@ -65,7 +65,7 @@ const subscriptions: Offer[] = [
     {
         id: 'abonnement-trimestriel',
         name: 'Abonnement Trimestriel',
-        price: '390 crédits',
+        price: '390€',
         cadence: '/3 mois',
         description: 'Formule abonnement optimisée pour un suivi sur la durée.',
         features: ['Validité : 90 jours', 'Volume de crédits renforcé', '1 séance découverte offerte à un proche'],

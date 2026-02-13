@@ -1,51 +1,27 @@
-import { Link, useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { defaultOffer, offerCatalog } from '../data/offers';
+import { addPurchaseForUser } from '../storage/purchases';
 import styles from './PaymentPage.module.css';
-
-type PlanContent = {
-    name: string;
-    amount: string;
-    subtitle: string;
-};
-
-const planMapping: Record<string, PlanContent> = {
-    'pack-1': {
-        name: 'Séance à l’unité',
-        amount: '14 crédits',
-        subtitle: '1 séance · Validité 7 jours',
-    },
-    'pack-10': {
-        name: 'Pack 10 séances',
-        amount: '140 crédits',
-        subtitle: '10 séances · Validité 2 mois',
-    },
-    'pack-20': {
-        name: 'Pack 20 séances',
-        amount: '280 crédits',
-        subtitle: '20 séances · Validité 4 mois',
-    },
-    'pack-40': {
-        name: 'Pack 40 séances',
-        amount: '560 crédits',
-        subtitle: '40 séances · Validité 8 mois',
-    },
-    'abonnement-mensuel': {
-        name: 'Abonnement Mensuel',
-        amount: '120 crédits',
-        subtitle: 'Validité 30 jours',
-    },
-    'abonnement-trimestriel': {
-        name: 'Abonnement Trimestriel',
-        amount: '390 crédits',
-        subtitle: 'Validité 90 jours',
-    },
-};
 
 export default function PaymentPage() {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const { account } = useAuth();
+    const [isPaymentAccepted, setIsPaymentAccepted] = useState(false);
     const selectedPlan = searchParams.get('plan') ?? 'pack-20';
-    const plan = planMapping[selectedPlan] ?? planMapping['pack-20'];
+    const plan = offerCatalog[selectedPlan] ?? defaultOffer;
+
+    const handlePayment = () => {
+        if (!account?.login) {
+            navigate('/register');
+            return;
+        }
+
+        addPurchaseForUser(account.login, plan.id);
+        setIsPaymentAccepted(true);
+    };
 
     return (
         <div className={styles.page}>
@@ -110,13 +86,28 @@ export default function PaymentPage() {
                         </label>
                     </div>
 
-                    <button type="button" className={styles.payButton}>
+                    <button type="button" className={styles.payButton} onClick={handlePayment}>
                         Payer {plan.amount}
                     </button>
                 </form>
 
                 <Link to="/pricing" className={styles.backLink}>← Retour aux tarifs</Link>
             </section>
+
+            {isPaymentAccepted && (
+                <div className={styles.modalBackdrop} role="dialog" aria-modal="true" aria-labelledby="payment-status-title">
+                    <div className={styles.modal}>
+                        <h2 id="payment-status-title">Paiement accepté</h2>
+                        <p>Votre offre a bien été enregistrée dans votre compte.</p>
+                        <div className={styles.modalActions}>
+                            <Link to="/profile" className={styles.primaryAction}>Voir mon profil</Link>
+                            <button type="button" className={styles.secondaryAction} onClick={() => setIsPaymentAccepted(false)}>
+                                Fermer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

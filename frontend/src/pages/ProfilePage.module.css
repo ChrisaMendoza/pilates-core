@@ -110,6 +110,12 @@
     gap: 0.15rem;
 }
 
+.purchaseInfo {
+    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
+    margin-top: var(--spacing-xs);
+}
+
 .columns {
     display: grid;
     grid-template-columns: 1fr 1fr;

@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { offerCatalog } from '../data/offers';
+import { getPurchasesForUser, type PurchaseRecord } from '../storage/purchases';
 import styles from './ProfilePage.module.css';
 
 type ProfileData = {
@@ -13,11 +15,6 @@ type ProfileData = {
 };
 
 const avatars = ['🧘', '💪', '🌸', '🔥', '✨', '🧡'];
-
-const activeOffers = [
-    { title: 'Pack 20 séances', detail: '280 crédits · Validité jusqu’au 30/09/2026' },
-    { title: 'Abonnement Mensuel', detail: '120 crédits · Renouvellement le 12 de chaque mois' },
-];
 
 const futureBookings = [
     'Lundi 18:30 · Signature Core for All',
@@ -34,6 +31,7 @@ export default function ProfilePage() {
 
     const [selectedAvatar, setSelectedAvatar] = useState(avatars[0]);
     const [isEditing, setIsEditing] = useState(false);
+    const [purchases, setPurchases] = useState<PurchaseRecord[]>([]);
     const [profileData, setProfileData] = useState<ProfileData>({
         firstName: account?.firstName ?? '',
         lastName: account?.lastName ?? '',
@@ -50,6 +48,15 @@ export default function ProfilePage() {
     }, [account?.firstName, account?.lastName, account?.login, profileData.firstName, profileData.lastName]);
 
     const firstName = profileData.firstName || account?.firstName || account?.login?.split('@')[0] || 'Membre';
+
+    useEffect(() => {
+        if (!account?.login) {
+            setPurchases([]);
+            return;
+        }
+
+        setPurchases(getPurchasesForUser(account.login));
+    }, [account?.login]);
 
     const onChange = (field: keyof ProfileData, value: string) => {
         setProfileData(prev => ({ ...prev, [field]: value }));
@@ -104,12 +111,26 @@ export default function ProfilePage() {
             <section className={styles.sectionCard}>
                 <h2>Mes packs et abonnements</h2>
                 <ul className={styles.list}>
-                    {activeOffers.map((offer) => (
-                        <li key={offer.title}>
-                            <strong>{offer.title}</strong>
-                            <span>{offer.detail}</span>
+                    {purchases.length === 0 && (
+                        <li>
+                            <strong>Aucune offre active</strong>
+                            <span>Après un paiement accepté, votre pack ou abonnement apparaîtra ici.</span>
                         </li>
-                    ))}
+                    )}
+                    {purchases.map((purchase, index) => {
+                        const offer = offerCatalog[purchase.planId];
+                        if (!offer) return null;
+
+                        return (
+                            <li key={`${purchase.planId}-${purchase.purchasedAt}-${index}`}>
+                                <strong>{offer.name}</strong>
+                                <span>{offer.amount} · {offer.subtitle}</span>
+                            </li>
+                        );
+                    })}
+                    {purchases.length > 0 && (
+                        <li className={styles.purchaseInfo}>Dernier achat enregistré localement sur ce navigateur.</li>
+                    )}
                 </ul>
             </section>
 
