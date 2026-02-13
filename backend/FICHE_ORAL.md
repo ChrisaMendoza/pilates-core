@@ -164,3 +164,164 @@ Voici un récapitulatif ultra-rapide pour expliquer ton code lors de l'oral.
 *   **`SecurityConfiguration.java`** : Configure qui a accès à quoi (ex: `/api/admin/**` réservé aux admins).
 *   **`Constants.java`** : Contient les constantes globales (regex email, login par défaut).
 *   **`ApplicationProperties.java`** : Mappe les configs du fichier `application.yml` vers des variables Java.
+
+---
+
+## 8. ⚡ Focus Technique : C'est quoi "Spring WebFlux" ? (L'Analogie du Serveur)
+
+Si le jury te pose la question *"Pourquoi WebFlux et pas Spring MVC classique ?"*, utilise cette image simple.
+
+### Le Problème (Spring MVC Classique = Bloquant)
+Imagine un **serveur de restaurant classique** (1 Thread = 1 Requête).
+1.  Le serveur prend ta commande.
+2.  Il va en cuisine et **attend devant le cuisinier** jusqu'à ce que le plat soit prêt (il est bloqué).
+3.  Pendant ce temps, les autres clients attendent que ce serveur soit libre.
+👉 *Si tu as 100 serveurs (Threads), tu peux gérer 100 clients. Le 101ème attend dehors.*
+
+### La Solution (Spring WebFlux = Non-Bloquant)
+C'est comme un **serveur très efficace avec un système de bipeur**.
+1.  Le serveur prend ta commande et la donne en cuisine.
+2.  **Il ne reste pas planter là !** Il retourne immédiatement en salle prendre la commande d'autres clients.
+3.  Quand le plat est prêt, la cuisine "bipe" (Callback/Reactive Stream), et le serveur l'apporte.
+👉 *Avec **1 seul serveur** (Thread), tu peux gérer **des milliers de clients** en même temps car il ne perd jamais de temps à attendre.*
+
+### En résumé pour l'oral :
+> "Contrairement à une approche classique où chaque utilisateur mobilise une ressource serveur (Thread), WebFlux fonctionne par **événements**. Dès qu'une tâche demande de l'attente (aller chercher en base de données, appeler une API), le serveur se libère pour traiter quelqu'un d'autre. C'est ce qui permet à CORE Pilates de supporter une montée en charge massive (Scalabilité) avec très peu de ressources machine."
+
+---
+
+## 9. 🔑 Focus Technique : C'est quoi un JWT ? (Le Bracelet du Festival)
+
+Si on te demande : *"Pourquoi utiliser un JWT ?"*
+
+### L'Analogie du Bracelet
+Imagine que tu entres dans un festival de musique.
+1.  Hôtesse : Tu montres ta carte d'identité et ton billet (= **Login/Password**).
+2.  Hôtesse : Elle vérifie et te met un **bracelet indéchirable** au poignet (= **Le Token JWT**).
+3.  Vigile : Pour entrer dans la zone VIP, tu montres juste ton bracelet. Le vigile ne te redemande pas ta carte d'identité, il vérifie juste que le bracelet est authentique.
+
+### Techniquement (JSON Web Token)
+*   **C'est quoi ?** : Une longue chaîne de caractères qui contient des infos cryptées (ex: "Je suis Chrisa, je suis Admin, le token expire dans 24h").
+*   **Stateless (Sans État)** : C'est la force du JWT. Le serveur **ne stocke pas** de session en mémoire.
+    *   *Classique* : Le serveur doit se souvenir "L'utilisateur #123 est connecté". Si le serveur redémarre, tout le monde est déconnecté.
+    *   *JWT* : Le serveur n'a rien besoin de retenir. Quand le client envoie le token, le serveur vérifie juste la **signature cryptographique** pour savoir si c'est valide.
+*   **Pourquoi c'est top pour le Mobile/React ?** : Un token peut être stocké facilement dans le téléphone ou le navigateur (`localStorage`) et envoyé à chaque requête.
+
+---
+
+## 10. 🧠 Lexique Simplifié pour l'Oral (Les "Mots Savants")
+
+Utilise ces phrases simples pour expliquer les concepts techniques.
+
+### 📦 DTO (Data Transfer Object)
+> **"C'est comme un colis Amazon."**
+*   L'objet `User` en base de données, c'est l'entrepôt complet (avec le mot de passe, etc.).
+*   Le `UserDTO`, c'est le colis qu'on envoie au client. On ne met dedans **que ce dont il a besoin** (Nom, Email) et surtout **pas le mot de passe**. C'est une question de **sécurité** et de **propreté**.
+
+### 🛡️ Stateless Security (Sans État)
+> **"Le serveur a la mémoire courte."**
+*   Le serveur ne se souvient pas de qui est connecté (pas de session en RAM).
+*   À chaque requête, il vérifie le badge (Token JWT) du client.
+*   **Avantage** : Si le serveur redémarre, personne n'est déconnecté (tant que le token est valide). C'est indispensable pour le Cloud.
+
+### 🗃️ Liquibase
+> **"C'est le Git de la base de données."**
+*   Au lieu de modifier la base à la main (ce qui est dangereux et non-reproductible), on écrit des fichiers XML ("changesets").
+*   Liquibase applique ces changements dans l'ordre. Ça permet d'avoir **exactement la même base de données** chez moi (Dev) et sur le serveur (Prod).
+
+### ✅ Tests d'Intégration
+> **"C'est comme un crash-test complet."**
+*   Les tests unitaires vérifient juste une pièce du moteur (une fonction).
+*   Le test d'intégration démarre **tout le moteur** (Spring, la base de données...) et vérifie que tout fonctionne ensemble.
+*   Exemple : "Je crée un utilisateur, je le fais se connecter, et je vérifie qu'il a bien reçu son token."
+
+---
+
+## 11. 🦅 Focus Outil : Swagger (Documentation API)
+
+Si on te demande : *"Comment avez-vous documenté votre API ?"* ou *"Comment le Front sait quoi envoyer au Back ?"*
+
+### C'est quoi ?
+> **"C'est la notice interactive de mon API."**
+C'est une page web générée automatiquement (`/swagger-ui.html`) qui liste toutes les routes (URL) de mon backend.
+
+### À quoi ça sert ?
+1.  **Tester sans Frontend** : Je peux cliquer sur un bouton "Try it out" pour envoyer une requête et voir la réponse JSON directement. C'est génial pour déboguer le backend isolément.
+2.  **Contrat d'Interface** : Le développeur Frontend (moi aussi dans ce cas) regarde Swagger pour savoir exactement quels champs envoyer dans le JSON.
+
+### Intégration Technique
+> "J'utilise la librairie **SpringDoc OpenAPI**. Elle scanne mes contrôleurs Java et génère la documentation toute seule. Je n'ai pas besoin d'écrire de doc à la main."
+
+---
+
+## 12. 🏗️ Architecture Complète : Comment tout est relié ?
+
+Si on te demande : *"Expliquez-moi comment le Frontend et le Backend communiquent"* ou *"Montrez-moi le schéma de base de données"*
+
+### 📊 Schéma de Base de Données (Tables Principales)
+
+```
+┌─────────────┐         ┌─────────────┐         ┌─────────────┐
+│   USER      │         │   BOOKING   │         │    EVENT    │
+├─────────────┤         ├─────────────┤         ├─────────────┤
+│ id (PK)     │◄────────│ user_id (FK)│         │ id (PK)     │
+│ login       │         │ event_id(FK)│────────►│ start_at    │
+│ email       │         │ status      │         │ end_at      │
+│ password    │         │ created_at  │         │ capacity    │
+│ phone       │         └─────────────┘         │ coach_name  │
+│ activated   │                                 └─────────────┘
+└─────────────┘
+```
+
+**Explique comme ça :**
+> "J'ai 3 tables principales : `USER` (les clients), `EVENT` (les séances de sport), et `BOOKING` (les réservations). La table `BOOKING` fait le lien entre un utilisateur et une séance. C'est une relation **Many-to-Many** (un user peut réserver plusieurs events, un event peut avoir plusieurs users)."
+
+### 🛣️ Les Routes API (Exemples Concrets)
+
+| Méthode | URL | Rôle | Fichier Backend |
+|---------|-----|------|-----------------|
+| `POST` | `/api/authenticate` | Login (génère le JWT) | `AuthenticateController.java` |
+| `POST` | `/api/register` | Inscription | `AccountResource.java` |
+| `GET` | `/api/account` | Récupère le profil connecté | `AccountResource.java` |
+| `GET` | `/api/events` | Liste des séances (Planning) | `EventResource.java` |
+| `POST` | `/api/bookings` | Créer une réservation | `BookingResource.java` |
+| `POST` | `/api/bookings/{id}/cancel` | Annuler une réservation | `BookingResource.java` |
+
+**Explique comme ça :**
+> "Chaque action dans le Frontend (clic sur 'Réserver') envoie une requête HTTP à une route précise. Par exemple, `POST /api/bookings` avec un JSON contenant l'ID de l'event et l'ID du user."
+
+### 🔄 Le Flux Complet (Exemple : Réservation)
+
+```
+┌──────────────┐   1. Clic "Réserver"    ┌──────────────┐
+│  FRONTEND    │──────────────────────►  │   BACKEND    │
+│ (React)      │   POST /api/bookings    │ (Spring)     │
+│              │   + JWT Token           │              │
+└──────────────┘                         └──────────────┘
+                                                │
+                                         2. Vérifie JWT
+                                         3. Vérifie capacité
+                                         4. Sauvegarde en BDD
+                                                │
+┌──────────────┐   5. Réponse JSON       ┌──────────────┐
+│  FRONTEND    │◄────────────────────────│   BACKEND    │
+│ Affiche      │   { "id": 123,          │              │
+│ "Réservé !"  │     "status": "BOOKED"} │              │
+└──────────────┘                         └──────────────┘
+```
+
+**Explique comme ça :**
+> "Le Frontend envoie une requête avec le Token JWT dans le header. Le Backend vérifie que le token est valide, que l'utilisateur a assez de crédits, que la séance n'est pas pleine, puis il sauvegarde la réservation en base et renvoie une confirmation JSON."
+
+### 🔐 Gestion de Session (JWT vs Session Classique)
+
+**Question piège :** *"Comment gérez-vous les sessions utilisateur ?"*
+
+> "Je n'utilise PAS de sessions classiques (cookies serveur). J'utilise des **JWT Tokens**. Quand l'utilisateur se connecte, le backend génère un token que le Frontend stocke dans le `localStorage`. À chaque requête, le Frontend envoie ce token dans le header `Authorization: Bearer <token>`. Le serveur vérifie juste la signature cryptographique du token, il ne stocke rien en mémoire. C'est **Stateless**."
+
+### 📂 Où trouver les fichiers clés ?
+
+*   **Schéma BDD** : `backend/src/main/resources/config/liquibase/changelog/` (fichiers XML)
+*   **Routes API** : `backend/src/main/java/com/pilates/booking/web/rest/`
+*   **Appels Frontend** : `frontend/src/api/` (ex: `bookings.ts`, `auth.ts`)
+*   **Pages Frontend** : `frontend/src/pages/` (ex: `PlanningPage.tsx`)

@@ -181,10 +181,10 @@ Cette section répond à la question : *"Que se passe-t-il exactement quand je c
 ### 7.1. Authentification (Login)
 **Action** : L'utilisateur saisit ses identifiants et clique sur **"Se connecter"**.
 
-1.  **Frontend (`LoginPage.tsx`)** :
-    *   La fonction `onSubmit` appelle `login(username, password)` (dans `api/auth.ts`).
+1.  **Frontend (`frontend/src/pages/LoginPage.tsx`)** :
+    *   La fonction `onSubmit` appelle `login(username, password)` (dans `frontend/src/api/auth.ts`).
     *   Une requête HTTP est envoyée : `POST /api/authenticate`.
-2.  **API / Controller (`AuthenticateController.java`)** :
+2.  **API / Controller (`backend/src/main/java/com/pilates/booking/web/rest/AuthenticateController.java`)** :
     *   La méthode `authorize()` reçoit la requête.
     *   Elle délègue l'authentification au `ReactiveAuthenticationManager`.
 3.  **Sécurité (Spring Security)** :
@@ -197,47 +197,47 @@ Cette section répond à la question : *"Que se passe-t-il exactement quand je c
 ### 7.2. Inscription (Register)
 **Action** : L'utilisateur remplit le formulaire et clique sur **"S'inscrire"**.
 
-1.  **Frontend (`RegisterPage.tsx`)** :
-    *   La fonction `onSubmit` appelle `register(formData)` (dans `api/auth.ts`).
+1.  **Frontend (`frontend/src/pages/RegisterPage.tsx`)** :
+    *   La fonction `onSubmit` appelle `register(formData)` (dans `frontend/src/api/auth.ts`).
     *   Requête HTTP : `POST /api/register`.
-2.  **API / Controller (`AccountResource.java`)** :
+2.  **API / Controller (`backend/src/main/java/com/pilates/booking/web/rest/AccountResource.java`)** :
     *   La méthode `registerAccount()` valide les données (ex: format email, longueur mot de passe).
     *   Appelle `UserService.registerUser()`.
-3.  **Service (`UserService.java`)** :
+3.  **Service (`backend/src/main/java/com/pilates/booking/service/UserService.java`)** :
     *   Vérifie si l'email ou le login existe déjà.
     *   Hache le mot de passe.
     *   Prépare l'entité `User`.
-4.  **Base de Données (`UserRepository`)** :
+4.  **Base de Données (`backend/src/main/java/com/pilates/booking/repository/UserRepository.java`)** :
     *   `save()` insère le nouvel utilisateur en base (SQL `INSERT INTO jhi_user ...`).
 
 ### 7.3. Réservation d'un cours (Booking)
 **Action** : L'utilisateur clique sur **"Réserver"** sur le planning.
 
-1.  **Frontend (`PlanningPage.tsx`)** :
+1.  **Frontend (`frontend/src/pages/PlanningPage.tsx`)** :
     *   Le bouton déclenche `handleBooking`.
-    *   Appelle l'API : `api/bookings.ts` (`createBooking`).
+    *   Appelle l'API : `frontend/src/api/bookings.ts` (`createBooking`).
     *   Requête HTTP : `POST /api/bookings`.
-2.  **API / Controller (`BookingResource.java`)** :
+2.  **API / Controller (`backend/src/main/java/com/pilates/booking/web/rest/BookingResource.java`)** :
     *   La méthode `createBooking()` reçoit l'objet `Booking`.
     *   Vérifie que l'ID est null (car c'est une création).
-3.  **Service (`BookingService.java`)** :
+3.  **Service (`backend/src/main/java/com/pilates/booking/service/BookingService.java`)** :
     *   Appelle la méthode `save()`.
     *   *Logique métier potentielle* : Vérification du solde de crédits, places disponibles, etc.
-4.  **Base de Données (`BookingRepository`)** :
+4.  **Base de Données (`backend/src/main/java/com/pilates/booking/repository/BookingRepository.java`)** :
     *   `save()` persiste la réservation en base (SQL `INSERT INTO booking ...`).
 
 ### 7.4. Annulation d'une réservation (Cancel Booking)
 **Action** : L'utilisateur clique sur **"Annuler"** dans son profil.
 
-1.  **Frontend (`ProfilePage.tsx`)** :
+1.  **Frontend (`frontend/src/pages/ProfilePage.tsx`)** :
     *   Le bouton déclenche `handleCancelBooking`.
     *   Vérification côté client : Est-ce que le cours est dans moins de 24h ? (Si oui, alerte).
-    *   Appelle l'API : `api/bookings.ts` (`cancelBooking`).
+    *   Appelle l'API : `frontend/src/api/bookings.ts` (`cancelBooking`).
     *   Requête HTTP : `POST /api/bookings/{id}/cancel`.
-2.  **API / Controller (`BookingResource.java`)** :
+2.  **API / Controller (`backend/src/main/java/com/pilates/booking/web/rest/BookingResource.java`)** :
     *   Endpoint : `@PostMapping("/{id}/cancel")`.
     *   Appelle `BookingService.cancel(id)`.
-3.  **Service (`BookingService.java`)** :
+3.  **Service (`backend/src/main/java/com/pilates/booking/service/BookingService.java`)** :
     *   Récupère la réservation.
     *   Vérifie les règles métier (pénalités, remboursement crédits).
     *   Supprime ou met à jour le statut de la réservation.
@@ -246,12 +246,12 @@ Cette section répond à la question : *"Que se passe-t-il exactement quand je c
 ### 7.5. Consultation du Profil (View Profile)
 **Action** : L'utilisateur accède à la page **"Mon Profil"**.
 
-1.  **Frontend (`ProfilePage.tsx`)** :
+1.  **Frontend (`frontend/src/pages/ProfilePage.tsx`)** :
     *   Au chargement (`useEffect`), le composant demande les infos.
-    *   Appelle `api/account.ts` (`getAccount`).
-    *   Appelle `api/bookings.ts` (`myBookings`) pour l'historique.
+    *   Appelle `frontend/src/api/account.ts` (`getAccount`).
+    *   Appelle `frontend/src/api/bookings.ts` (`myBookings`) pour l'historique.
     *   Requêtes HTTP : `GET /api/account` et `GET /api/bookings`.
-2.  **API / Controller (`AccountResource.java` & `BookingResource.java`)** :
+2.  **API / Controller (`backend/src/main/java/com/pilates/booking/web/rest/AccountResource.java` & `BookingResource.java`)** :
     *   `getAccount()` : Récupère l'utilisateur connecté via le Token JWT.
     *   `getAllBookings()` : Récupère les réservations liées à cet utilisateur.
 3.  **Base de Données** :
@@ -262,10 +262,10 @@ Cette section répond à la question : *"Que se passe-t-il exactement quand je c
 **Action** : L'admin veut voir la liste des utilisateurs.
 *(Note : Cette fonctionnalité est actuellement accessible via API uniquement, pas encore d'écran dédié).*
 
-1.  **API / Controller (`UserResource.java`)** :
+1.  **API / Controller (`backend/src/main/java/com/pilates/booking/web/rest/UserResource.java`)** :
     *   Endpoint : `GET /api/admin/users`.
     *   **Sécurité** : L'annotation `@PreAuthorize("hasAuthority('ROLE_ADMIN')")` vérifie que le JWT contient le rôle ADMIN.
     *   Si l'utilisateur est un simple client -> **403 Forbidden** (Accès Interdit).
     *   Si l'utilisateur est Admin -> **200 OK** + Liste JSON.
-2.  **Service (`UserService.java`)** :
+2.  **Service (`backend/src/main/java/com/pilates/booking/service/UserService.java`)** :
     *   `getAllManagedUsers()` retourne une liste paginée (ex: page 1, 20 utilisateurs).
